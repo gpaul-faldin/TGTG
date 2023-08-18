@@ -1,6 +1,7 @@
 import { PuppeteerExtraBot } from "./Puppeteer.class";
 import { RetrieveLink } from "./RetrieveLink.class";
 import { TGTG } from "./TgTg.class";
+import { base64ToText } from "../utils/base64ToText";
 
 
 
@@ -13,13 +14,11 @@ class Main extends TGTG{
 
   constructor(email: string, PasswordB64: string, host: string, apkVersion: string) {
     super(email, apkVersion);
-    this.RetrieveLink = new RetrieveLink(email, this.base64ToText(PasswordB64), host, /https:\/\/share\.toogoodtogo\.com\/login\/accept\/[a-zA-Z0-9/-]+/g);
+    this.RetrieveLink = new RetrieveLink(email, base64ToText(PasswordB64), host, /https:\/\/share\.toogoodtogo\.com\/login\/accept\/[a-zA-Z0-9/-]+/g);
     this.Bot = new PuppeteerExtraBot('', { headless: "new" });
   }
 
-  private base64ToText(base64: string): string {
-    return Buffer.from(base64, 'base64').toString('utf-8');
-  }
+
   private GetStoresInfo(items: any[]): any[] {
 
     var re: any[] = []
@@ -31,6 +30,7 @@ class Main extends TGTG{
         store_id: items[i].store.store_id,
         item_id: items[i].item.item_id,
         in_sales_window: items[i].in_sales_window,
+        price: items[i].item.price_excluding_taxes.minor_units / Math.pow(10, items[i].item.price_excluding_taxes.decimals),
       })
     }
     return re;
@@ -40,6 +40,7 @@ class Main extends TGTG{
       orderId: orderContainer.order.id,
       quantity: orderContainer.order.quantity,
       price: orderContainer.order.order_line.item_price_including_taxes.minor_units / Math.pow(10, orderContainer.order.order_line.item_price_including_taxes.decimals),
+      state: orderContainer.order.state,
     }
   }
 
@@ -64,7 +65,7 @@ class Main extends TGTG{
   public async GetFavoritesInfos() {
     const items = await this.GetFavorites();
     const itemsInfo = this.GetStoresInfo(items);
-    return [itemsInfo, items];
+    return itemsInfo;
   }
 
   public async CreateNewOrder(itemId: string, itemCount: number): Promise<any | null> {

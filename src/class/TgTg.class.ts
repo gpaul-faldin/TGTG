@@ -233,7 +233,7 @@ class TGTG {
         url: BASE_URL + ABORT_ORDER_ENDPOINT.replace("<ID>", orderId),
         headers: this.headers,
         data: {
-          cancel_reason_id: 1,
+          cancel_reason_id: "1",
         }
       });
       return resp.data;
