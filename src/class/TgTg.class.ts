@@ -53,7 +53,6 @@ class TGTG {
   }
   private async TokenRefresh() {
     if (Date.now() - this.tokenAge <= DEFAULT_ACCESS_TOKEN_LIFETIME) {
-      console.log("Token still OK");
       return 0;
     }
 
@@ -139,7 +138,6 @@ class TGTG {
         console.log("Check Mail");
         return "Check Mail";
       } else if (resp.status === 200) {
-        console.log("Success");
         this.accessToken = resp.data.access_token;
         this.refreshToken = resp.data.refresh_token;
         this.tokenAge = Date.now();
