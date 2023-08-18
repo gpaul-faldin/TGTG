@@ -110,7 +110,6 @@ class EmailReader {
     });
   }
 
-
 }
 
 export { EmailReader }

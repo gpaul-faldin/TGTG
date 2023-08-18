@@ -8,8 +8,8 @@ const REFRESH_ENDPOINT = "auth/v3/token/refresh"
 const ACTIVE_ORDER_ENDPOINT = "order/v6/active"
 const INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
 const CREATE_ORDER_ENDPOINT = "order/v7/create/"
-const ABORT_ORDER_ENDPOINT = "order/v7/{}/abort"
-const ORDER_STATUS_ENDPOINT = "order/v7/{}/status"
+const ABORT_ORDER_ENDPOINT = "order/v7/<ID>/abort"
+const ORDER_STATUS_ENDPOINT = "order/v7/<ID>/status"
 const API_BUCKET_ENDPOINT = "discover/v1/bucket"
 const DEFAULT_ACCESS_TOKEN_LIFETIME = 14400000 // 4 hours in ms
 const MAX_POLLING_TRIES = 24
@@ -87,7 +87,7 @@ class TGTG {
   protected async Login(): Promise<string | null> {
     if (this.LoggedIn()) {
       await this.TokenRefresh();
-      return null; // Indicates that no further action is required from the user
+      return null;
     }
 
     try {
@@ -174,8 +174,8 @@ class TGTG {
         headers: this.headers,
         data: {
           origin: {
-            latitude: 48.9115967,
-            longitude: 2.2939717
+            latitude: 0.0,
+            longitude: 0.0
           },
           radius: 10.0,
           user_id: this.userId,
@@ -189,6 +189,78 @@ class TGTG {
         }
       });
       return resp.data.mobile_bucket.items;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  protected async CreateOrder(itemId: string, itemCount: number) {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + CREATE_ORDER_ENDPOINT + itemId,
+        headers: this.headers,
+        data: {
+          item_count: itemCount,
+        }
+      });
+      return resp.data;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  protected async AbortOrder(orderId: string) {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + ABORT_ORDER_ENDPOINT.replace("<ID>", orderId),
+        headers: this.headers,
+        data: {
+          cancel_reason_id: 1,
+        }
+      });
+      return resp.data;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  protected async StatusOrder(orderId: string) {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + ORDER_STATUS_ENDPOINT.replace("<ID>", orderId),
+        headers: this.headers,
+      });
+      return resp.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
         throw new Error(JSON.stringify({

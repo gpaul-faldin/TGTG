@@ -25,7 +25,17 @@ dotenv.config();
     console.log("Logged in")
     const items = await main.GetFavoritesInfos();
 
-    fs.writeFileSync('items.json', JSON.stringify(items, null, 2));
+    fs.writeFileSync('items.json', JSON.stringify(items[0], null, 2));
+    fs.writeFileSync('full.json', JSON.stringify(items[1], null, 2));
+
+    const order = await main.CreateNewOrder("626779", 1);
+    if (order) {
+      fs.writeFileSync('order.json', JSON.stringify(order, null, 2));
+      const orderStatus = await main.GetStatus(order.orderId);
+      console.log(orderStatus);
+      const abort = await main.AbortOrderID(order.orderId);
+      console.log(abort)
+    }
 
     // console.log(main.userId)
 
