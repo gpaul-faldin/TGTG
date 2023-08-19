@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import FavoriteStore from '../../schema/favoriteStore.schema';
+import { FavoriteService } from '../../service/FavoriteService.class';
 
 const router = Router();
 const dataExpiryMinutes = 5;
@@ -17,11 +18,11 @@ router.get('/', async (req: Request, res: Response) => {
       }
     }
 
-    const favoritesFromAPI = await req.main.GetFavoritesInfos();
-    await FavoriteStore.deleteMany({});
-    await FavoriteStore.insertMany(favoritesFromAPI);
+    const favoriteService = new FavoriteService(req.main);
+    await favoriteService.fetchAndStoreFavorites();
 
-    return res.status(200).json(favoritesFromAPI);
+    const newFreshFavorites = await FavoriteStore.find();
+    return res.status(200).json(newFreshFavorites);
 
   } catch (err) {
     console.error('Failed to retrieve favorites:', err);

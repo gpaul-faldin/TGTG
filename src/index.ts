@@ -9,6 +9,8 @@ import orderRoutes from './API/order/orderRoutes';
 import favoritesRoutes from './API/favorites/favoritesRoutes';
 //import reservationRoutes from './API/reservation/reservationRoutes';
 
+import './cron/fetchFavorites';
+
 dotenv.config();
 
 const app = express();
@@ -37,7 +39,8 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
       });
 
     const apkVersion = await getApkVersion();
-    const main = new Main(Email, Password, 'outlook.office365.com', apkVersion);
+    Main.initialize(Email, Password, 'outlook.office365.com', apkVersion);
+    const main = Main.getInstance();
     await main.init();
     console.log("Logged in");
 
@@ -59,6 +62,7 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
   }
 })();
 
+export default app;
 
 // (async () => {
 

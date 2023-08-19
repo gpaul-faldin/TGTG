@@ -3,21 +3,24 @@ import { RetrieveLink } from "./RetrieveLink.class";
 import { TGTG } from "./TgTg.class";
 import { base64ToText } from "../utils/base64ToText";
 
-
-
-import fs from 'fs';
-
 class Main extends TGTG{
 
   private RetrieveLink: RetrieveLink;
   private Bot: PuppeteerExtraBot;
 
-  constructor(email: string, PasswordB64: string, host: string, apkVersion: string) {
+  private static instance: Main | null = null;
+  private static email: string;
+  private static PasswordB64: string;
+  private static host: string;
+  private static apkVersion: string;
+
+  private constructor(email: string, PasswordB64: string, host: string, apkVersion: string) {
     super(email, apkVersion);
     this.RetrieveLink = new RetrieveLink(email, base64ToText(PasswordB64), host, /https:\/\/share\.toogoodtogo\.com\/login\/accept\/[a-zA-Z0-9/-]+/g);
     this.Bot = new PuppeteerExtraBot('', { headless: "new" });
   }
 
+  /*UTILS*/
 
   private GetStoresInfo(items: any[]): any[] {
 
@@ -44,6 +47,28 @@ class Main extends TGTG{
     }
   }
 
+  /*INIT*/
+
+  public static initialize(email: string, PasswordB64: string, host: string, apkVersion: string): void {
+    Main.email = email;
+    Main.PasswordB64 = PasswordB64;
+    Main.host = host;
+    Main.apkVersion = apkVersion;
+  }
+  public static isInitialized(): boolean {
+    return this.instance !== null;
+  }
+  public static getInstance(): Main {
+    if (Main.instance === null) {
+      if (Main.email && Main.PasswordB64 && Main.host && Main.apkVersion) {
+        Main.instance = new Main(Main.email, Main.PasswordB64, Main.host, Main.apkVersion);
+      } else {
+        throw new Error("Main class needs to be initialized before getting an instance");
+      }
+    }
+
+    return Main.instance;
+  }
   public async init() {
     const pollingId = await this.Login()
     if (pollingId) {
@@ -62,12 +87,13 @@ class Main extends TGTG{
     }
   }
 
+  /*ENDPOINTS*/
+
   public async GetFavoritesInfos() {
     const items = await this.GetFavorites();
     const itemsInfo = this.GetStoresInfo(items);
     return itemsInfo;
   }
-
   public async CreateNewOrder(itemId: string, itemCount: number): Promise<any | null> {
     const order = await this.CreateOrder(itemId, itemCount);
     if (order.state === "SUCCESS") {
@@ -77,12 +103,10 @@ class Main extends TGTG{
     }
     return null;
   }
-
   public async GetStatus(orderId: string): Promise<string> {
     const order = await this.StatusOrder(orderId);
     return order.state;
   }
-
   public async AbortOrderID(orderId: string): Promise<boolean> {
     const order = await this.AbortOrder(orderId);
     return order.state;
