@@ -42,7 +42,6 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
     Main.initialize(Email, Password, 'outlook.office365.com', apkVersion);
     const main = Main.getInstance();
     await main.init();
-    console.log("Logged in");
 
     app.use((req: Request, res: Response, next: NextFunction) => {
       (req as any).main = main;

@@ -3,10 +3,10 @@ import { Main } from '../class/Main.class';
 import { FavoriteService } from '../service/FavoriteService.class';
 
 // Set up a Cron job that runs every 3 minutes
-const task = cron.schedule('*/3 * * * *', async () => {
+const task = cron.schedule('*/1 * * * *', async () => {
   const mainInstanceInit = Main.isInitialized()
 
-  if (mainInstanceInit === null) {
+  if (mainInstanceInit === false) {
     console.error("Main class needs to be initialized to fetch and store favorites");
   } else {
     const mainInstance = Main.getInstance();

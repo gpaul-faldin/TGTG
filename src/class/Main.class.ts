@@ -1,4 +1,3 @@
-import { PuppeteerExtraBot } from "./Puppeteer.class";
 import { RetrieveLink } from "./RetrieveLink.class";
 import { TGTG } from "./TgTg.class";
 import { base64ToText } from "../utils/base64ToText";
@@ -6,7 +5,6 @@ import { base64ToText } from "../utils/base64ToText";
 class Main extends TGTG{
 
   private RetrieveLink: RetrieveLink;
-  private Bot: PuppeteerExtraBot;
 
   private static instance: Main | null = null;
   private static email: string;
@@ -16,8 +14,7 @@ class Main extends TGTG{
 
   private constructor(email: string, PasswordB64: string, host: string, apkVersion: string) {
     super(email, apkVersion);
-    this.RetrieveLink = new RetrieveLink(email, base64ToText(PasswordB64), host, /https:\/\/share\.toogoodtogo\.com\/login\/accept\/[a-zA-Z0-9/-]+/g);
-    this.Bot = new PuppeteerExtraBot('', { headless: "new" });
+    this.RetrieveLink = new RetrieveLink(email, base64ToText(PasswordB64), host, /\b\d{6}\b/g);
   }
 
   /*UTILS*/
@@ -72,17 +69,16 @@ class Main extends TGTG{
   public async init() {
     const pollingId = await this.Login()
     if (pollingId) {
-      const link = await this.RetrieveLink.LoopRetrieveLoginLink(5);
-      if (!link)
-        throw new Error("No link found");
-      this.Bot.pageUrl = link;
-      if (link) {
-        await this.Bot.waitForXPathOutcome('//span[text()="You’re logged in"]', '//span[text()="Something went wrong"]', 15000);
+      const pin = await this.RetrieveLink.LoopRetrieveLoginLink(5);
+      if (!pin)
+        throw new Error("No pin found");
+      if (pin) {
+        await this.AuthByRequestPin(pin, pollingId)
       }
       const retPolling = await this.Polling(pollingId)
       if (retPolling === "Error")
         throw new Error("Connection failed failed");
-      else if (retPolling === "Success")
+      else if (retPolling === "Logged in")
         console.log("Connection successful");
     }
   }

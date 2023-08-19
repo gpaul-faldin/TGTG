@@ -3,6 +3,7 @@ import axios, { AxiosError } from 'axios';
 const BASE_URL = "https://apptoogoodtogo.com/api/";
 const AUTH_BY_EMAIL_ENDPOINT = "auth/v4/authByEmail"
 const AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
+const AUTH_BY_REQUEST_PIN_ENDPOINT = "auth/v4/authByRequestPin"
 const SIGNUP_BY_EMAIL_ENDPOINT = "auth/v3/signUpByEmail"
 const REFRESH_ENDPOINT = "auth/v3/token/refresh"
 const ACTIVE_ORDER_ENDPOINT = "order/v6/active"
@@ -99,7 +100,6 @@ class TGTG {
           email: this.email
         }
       });
-
       if (resp.status === 200 && resp.data.state === "WAIT") {
         const pollingId: string = resp.data.polling_id;
         return pollingId;
@@ -160,6 +160,34 @@ class TGTG {
       return "Error";
     }
     return "Error";
+  }
+  protected async AuthByRequestPin(pin: string, pollingId: string): Promise<string> {
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + AUTH_BY_REQUEST_PIN_ENDPOINT,
+        headers: this.headers,
+        data: {
+          device_type: "ANDROID",
+          email: this.email,
+          request_pin: pin,
+          request_polling_id: pollingId
+        }
+      });
+      if (resp.status === 200) {
+        return "Logged in";
+      }
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+    return "Error"
   }
 
   protected async GetFavorites(): Promise<any> {

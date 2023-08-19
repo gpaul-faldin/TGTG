@@ -23,7 +23,7 @@ class EmailReader {
     this.imap.openBox('INBOX', false, cb);
   }
 
-  protected fetchAndReadEmail(searchCriteria: any, fetchOptions: any): Promise<ParsedMail | null> {
+  public fetchAndReadEmail(searchCriteria: any, fetchOptions: any): Promise<ParsedMail | null> {
     return new Promise<ParsedMail | null>((resolve, reject) => {
       this.imap.once('ready', () => {
         this.openInbox((err, box) => {
@@ -84,7 +84,7 @@ class EmailReader {
     });
   }
 
-  protected retrieveSpecificLine(emailContent: string, pattern: RegExp): string | null {
+  public retrieveSpecificLine(emailContent: string, pattern: RegExp): string | null {
     const decodedContent = decode(emailContent);
 
     // Find the first match of the pattern in the joined content
