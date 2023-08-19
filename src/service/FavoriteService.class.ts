@@ -12,8 +12,26 @@ export class FavoriteService {
     try {
       const favorites = await this.main.GetFavoritesInfos();
 
-      await FavoriteStore.deleteMany({});
-      await FavoriteStore.insertMany(favorites);
+      const batchId = new Date().toISOString();
+
+      for (const favorite of favorites) {
+        const { store_id, item_id, ...data } = favorite;
+
+        await FavoriteStore.findOneAndUpdate(
+          { store_id, item_id },
+          {
+            store_id,
+            item_id,
+            ...data,
+            batchId,
+            createdAt: new Date()
+          },
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+      }
+
+      await FavoriteStore.deleteMany({ batchId: { $ne: batchId } });
+
     } catch (error) {
       console.error("Failed to fetch and store favorites:", error);
     }

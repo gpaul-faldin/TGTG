@@ -7,6 +7,7 @@ const FavoriteStoreSchema = new mongoose.Schema({
   item_id: String,
   in_sales_window: Boolean,
   price: Number,
+  batchId: String,
   createdAt: {
     type: Date,
     default: Date.now
