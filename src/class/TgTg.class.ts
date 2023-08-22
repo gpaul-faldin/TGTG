@@ -11,6 +11,8 @@ const INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
 const CREATE_ORDER_ENDPOINT = "order/v7/create/"
 const ABORT_ORDER_ENDPOINT = "order/v7/<ID>/abort"
 const ORDER_STATUS_ENDPOINT = "order/v7/<ID>/status"
+const ORDER_PAY_ENDPOINT = "order/v7/<ID>/pay"
+const ORDER_PAY_STATUS_ENDPOINT = "payment/v3/<ID>/biometrics"
 const API_BUCKET_ENDPOINT = "discover/v1/bucket"
 const DEFAULT_ACCESS_TOKEN_LIFETIME = 14400000 // 4 hours in ms
 const MAX_POLLING_TRIES = 24
@@ -264,6 +266,30 @@ class TGTG {
           cancel_reason_id: "1",
         }
       });
+      return resp.data;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  public async Pay(orderId: string, payload: object) {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + ORDER_PAY_ENDPOINT.replace("<ID>", orderId),
+        headers: this.headers,
+        data: payload
+      });
+      console.log(resp.data)
       return resp.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {

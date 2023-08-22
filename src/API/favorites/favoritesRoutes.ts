@@ -7,17 +7,6 @@ const dataExpiryMinutes = 5;
 
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const latestFavorite = await FavoriteStore.findOne().sort('-createdAt');
-
-    if (latestFavorite) {
-      const dataAgeMinutes = (new Date().getTime() - new Date(latestFavorite.createdAt).getTime()) / (1000 * 60);
-
-      if (dataAgeMinutes < dataExpiryMinutes) {
-        const favorites = await FavoriteStore.find();
-        return res.status(200).json(favorites);
-      }
-    }
-
     const favoriteService = new FavoriteService(req.main);
     await favoriteService.fetchAndStoreFavorites();
 

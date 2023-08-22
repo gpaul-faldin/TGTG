@@ -1,10 +1,12 @@
 import { RetrieveLink } from "./RetrieveLink.class";
 import { TGTG } from "./TgTg.class";
 import { base64ToText } from "../utils/base64ToText";
+import { PaymentBuilder } from "./PaymentBuilder.class";
 
 class Main extends TGTG{
 
   private RetrieveLink: RetrieveLink;
+  private PaymentBuilder: PaymentBuilder;
 
   private static instance: Main | null = null;
   private static email: string;
@@ -15,6 +17,7 @@ class Main extends TGTG{
   private constructor(email: string, PasswordB64: string, host: string, apkVersion: string) {
     super(email, apkVersion);
     this.RetrieveLink = new RetrieveLink(email, base64ToText(PasswordB64), host, /\b\d{6}\b/g);
+    this.PaymentBuilder = new PaymentBuilder();
   }
 
   /*UTILS*/
@@ -106,6 +109,10 @@ class Main extends TGTG{
   public async AbortOrderID(orderId: string): Promise<boolean> {
     const order = await this.AbortOrder(orderId);
     return order.state;
+  }
+  public async PayOrder(orderId: string, payload: any): Promise<any> {
+    const order = await this.Pay(orderId, payload);
+    return order;
   }
 }
 

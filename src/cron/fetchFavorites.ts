@@ -16,4 +16,5 @@ const task = cron.schedule('*/1 * * * *', async () => {
   }
 });
 
-task.start();
+
+//task.start();

@@ -94,7 +94,7 @@ export default app;
 //     }
 
 //   } catch (error) {
-//     // Handle errors that occurred during initialization
+//     Handle errors that occurred during initialization
 //     console.error('An error occurred during initialization:', error);
 //   }
 // })();
