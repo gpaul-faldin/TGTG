@@ -1,5 +1,5 @@
 import mongoose, { Document } from 'mongoose';
-import {OrderDocument} from './order.schema';
+import { OrderDocument } from './order.schema';
 import { FavoriteStoreDocument } from './favoriteStore.schema';
 import { BuyOrderDocument } from './buyOrder.schema';
 
@@ -65,7 +65,7 @@ const UserSchema = new mongoose.Schema({
       ref: 'BuyOrder',
     },
   ],
-});
+}, { timestamps: true });
 
 const User = mongoose.model<UserDocument>('User', UserSchema);
 

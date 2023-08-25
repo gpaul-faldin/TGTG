@@ -239,6 +239,34 @@ class TGTG {
       }
     }
   }
+  protected async GetFavorite(item_id: string): Promise<any> {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + `item/v7/${item_id}`,
+        headers: this.headers,
+        data: {
+          "user_id": this.userId,
+          "origin": {
+            "latitude": 0.0,
+            "longitude": 0.0
+          }
+        }
+      })
+      return resp.data;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
   protected async CreateOrder(itemId: string, itemCount: number) {
     await this.Login()
 

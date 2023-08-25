@@ -17,12 +17,11 @@ const BuyOrderSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  item_id: {type: String, required: true},
+  item_id: { type: String, required: true },
   store_id: String,
   quantity: { type: Number, required: true },
-  datePlaced: Date,
   state: String,
-});
+}, { timestamps: true });
 
 const BuyOrder = mongoose.model<BuyOrderDocument>('BuyOrder', BuyOrderSchema);
 

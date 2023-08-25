@@ -2,7 +2,7 @@ import { Main } from '../class/Main.class';
 import { PaymentBuilder } from '../class/PaymentBuilder.class';
 import User, { UserDocument } from '../schema/Users.schema';
 import BuyOrder, { BuyOrderDocument } from '../schema/buyOrder.schema';
-import Order, { OrderDocument } from '../schema/order.schema';
+import Order from '../schema/order.schema';
 
 export class BuyOrderService {
 
@@ -14,9 +14,9 @@ export class BuyOrderService {
   private quantity: number;
   private preferredPaymentMethodId: string;
 
-  constructor(orderId: string, quantity: number) {
+  constructor(orderId: string) {
     this.BuyorderId = orderId;
-    this.quantity = quantity;
+    this.quantity = 0;
     this.preferredPaymentMethodId = "";
     this.main = null;
     this.paymentBuilder = null;
@@ -34,6 +34,20 @@ export class BuyOrderService {
       this.user = this.buyOrder.user as UserDocument;
       this.main = new Main(this.user.email, this.user.initInfo.apkVersion, this.user.login.accessToken, this.user.login.refreshToken, this.user.login.userId, this.user.login.tokenAge, this.user.login.cookie);
 
+      const ItemInfo = await this.main.GetFavoriteInfos(this.buyOrder.item_id);
+      this.quantity = ItemInfo[0].quantity;
+
+      if (this.quantity > 0) {
+        const quantity = this.buyOrder.quantity > this.quantity ? this.quantity : this.buyOrder.quantity;
+        const orderId = await this.pushOrder(await this.main.CreateNewOrder(this.buyOrder.item_id, quantity));
+        if (orderId === null) {
+          throw new Error('Order not created.');
+        }
+        console.log(`Reserved ${quantity} of ${this.quantity}`);
+      } else {
+        throw new Error('Item is out of stock.');
+      }
+
       console.log('Initialization complete.');
     } catch (error) {
       console.error('Initialization error:', error);
@@ -47,8 +61,8 @@ export class BuyOrderService {
   }
 
   private async pushOrder(order: any) {
-    if (!this.main || !this.paymentBuilder || !this.user || !this.buyOrder) {
-      throw new Error('Run init first');
+    if (!this.buyOrder) {
+      throw new Error('Run init first (Push Order)');
     }
     try {
       const NewOrder = new Order({
@@ -115,13 +129,19 @@ export class BuyOrderService {
       if (cvc === "") {
         throw new Error('CVC is missing.');
       }
-      this.preferredPaymentMethodId = await this.main.GetPaymentMethods()
+
+      const order = await Order.findOne({ buyOrder: this.buyOrder._id });
+      if (!order) {
+        throw new Error('Order is missing.');
+      }
+      const orderId = order.orderId;
+
+
+      this.preferredPaymentMethodId = await this.main.GetPaymentMethods();
       this.paymentBuilder = new PaymentBuilder(cvc, this.preferredPaymentMethodId);
-      const orderId = await this.pushOrder(await this.main.CreateNewOrder(this.buyOrder.item_id, this.quantity));
-      if (orderId === null)
-        throw new Error('Order not created.');
-      await this.main.PayOrder(orderId, await this.paymentBuilder.buildCvCEncryptedObject())
-      await this.sleep(5000)
+
+      await this.main.PayOrder(orderId, await this.paymentBuilder.buildCvCEncryptedObject());
+      await this.sleep(5000);
       return (await this.UpdateOrderStatus(orderId));
     } catch (error) {
       console.error('Error in pay():', error);

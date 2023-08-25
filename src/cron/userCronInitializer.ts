@@ -4,7 +4,7 @@ import { FavoritesCronJob } from '../utils/CronJobFavoritesBuilder';
 
 export const initializeUserCronJobs = async () => {
   try {
-    const userCursor = User.find({ active: true }).cursor();  // Use a cursor to stream users
+    const userCursor = User.find({ active: true }).cursor();
 
     for await (const user of userCursor) {
       if (user.login && user.initInfo) {

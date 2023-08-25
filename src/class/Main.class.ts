@@ -37,7 +37,7 @@ class Main extends TGTG{
     return {
       orderId: orderContainer.order.id,
       quantity: orderContainer.order.order_line.quantity,
-      price: orderContainer.order.order_line.item_price_including_taxes.minor_units / Math.pow(10, orderContainer.order.order_line.item_price_including_taxes.decimals),
+      price: (orderContainer.order.order_line.item_price_including_taxes.minor_units / Math.pow(10, orderContainer.order.order_line.item_price_including_taxes.decimals)) * orderContainer.order.order_line.quantity,
       state: orderContainer.order.state,
     }
   }
@@ -48,6 +48,11 @@ class Main extends TGTG{
     const items = await this.GetFavorites();
     const itemsInfo = this.GetStoresInfo(items);
     return itemsInfo;
+  }
+  public async GetFavoriteInfos(itemId: string) {
+    const item = await this.GetFavorite(itemId);
+    const itemInfo = this.GetStoresInfo([item]);
+    return itemInfo;
   }
   public async CreateNewOrder(itemId: string, itemCount: number): Promise<any | null> {
     const order = await this.CreateOrder(itemId, itemCount);

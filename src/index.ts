@@ -4,12 +4,12 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { base64ToText } from './utils/base64ToText';
 
-import orderRoutes from './API/order/orderRoutes';
 import favoritesRoutes from './API/favorites/favoritesRoutes';
 import usersRoutes from './API/users/usersRoutes';
 import reservationRoutes from './API/reservation/reservationRoutes';
 import { initializeUserCronJobs } from './cron/userCronInitializer';
 import { startCleanupJob } from './cron/cleanupCrontJob';
+import { startCronJobsForOngoingBuyOrders } from './cron/buyOrder';
 
 dotenv.config();
 
@@ -38,7 +38,6 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
         throw new Error("Error connecting to MongoDB");
       });
 
-    app.use('/api/order', orderRoutes);
     app.use('/api/favorites', favoritesRoutes);
     app.use('/api/users', usersRoutes);
     app.use('/api/reservation', reservationRoutes)
@@ -50,6 +49,7 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
     //CRON
     startCleanupJob();
     initializeUserCronJobs();
+    startCronJobsForOngoingBuyOrders();
 
   } catch (error) {
     console.error('An error occurred during initialization:', error);

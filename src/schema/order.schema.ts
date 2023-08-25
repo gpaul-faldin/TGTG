@@ -22,7 +22,7 @@ const OrderSchema = new mongoose.Schema({
   quantity: Number,
   price: Number,
   state: String,
-});
+}, { timestamps: true });
 
 const Order = mongoose.model<OrderDocument>('Order', OrderSchema);
 
