@@ -2,6 +2,7 @@ import cron from 'node-cron';
 import BuyOrder from '../schema/buyOrder.schema';
 import FavoriteStore from '../schema/favoriteStore.schema';
 import { BuyOrderService } from '../service/BuyOrder.service';
+import { sendSuccess } from '../notifications/discordWebhook';
 
 const buyOrderCronMap = new Map<string, cron.ScheduledTask>();
 
@@ -32,6 +33,7 @@ const startBuyOrderCron = (buyOrderId: string) => {
           //SEND EMAIL WITH LINK TO ENTER CVV
           console.log("SEND EMAIL WITH LINK TO ENTER CVV")
         }
+        await sendSuccess(`Buy Order ${buyOrder._id.toString()} completed.`)
         removeBuyOrder(buyOrder._id.toString())
         return;
       }

@@ -10,13 +10,14 @@ import reservationRoutes from './API/reservation/reservationRoutes';
 import { initializeUserCronJobs } from './cron/userCronInitializer';
 import { startCleanupJob } from './cron/cleanupCrontJob';
 import { startCronJobsForOngoingBuyOrders } from './cron/buyOrder';
+import { sendSuccess } from './notifications/discordWebhook';
 
 import { sendEmail } from './notifications/email';
 
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 
@@ -57,6 +58,7 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
     startCleanupJob();
     initializeUserCronJobs();
     startCronJobsForOngoingBuyOrders();
+    await sendSuccess("Server started")
 
   } catch (error) {
     console.error('An error occurred during initialization:', error);
