@@ -13,7 +13,8 @@ const CREATE_ORDER_ENDPOINT = "order/v7/create/"
 const ABORT_ORDER_ENDPOINT = "order/v7/<ID>/abort"
 const ORDER_STATUS_ENDPOINT = "order/v7/<ID>/status"
 const ORDER_PAY_ENDPOINT = "order/v7/<ID>/pay"
-const ORDER_PAY_STATUS_ENDPOINT = "payment/v3/<ID>/biometrics"
+const ORDER_PAY_BIOMETRICS = "payment/v3/<ID>/biometrics"
+const ORDER_PAY_STATUS = "payment/v3/<ID>"
 const API_BUCKET_ENDPOINT = "discover/v1/bucket"
 const DEFAULT_ACCESS_TOKEN_LIFETIME = 14400000 // 4 hours in ms
 const MAX_POLLING_TRIES = 24
@@ -383,6 +384,49 @@ class TGTG {
       const resp = await axios({
         method: 'post',
         url: BASE_URL + ORDER_STATUS_ENDPOINT.replace("<ID>", orderId),
+        headers: this.headers,
+      });
+      return resp.data;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+  protected async PaymentStatus(paymentId: string): Promise<string> {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + ORDER_PAY_STATUS.replace("<ID>", paymentId),
+        headers: this.headers,
+      });
+      return resp.data.state;
+
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+  protected async PaymentBiometrics(paymentId: string) {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + ORDER_PAY_BIOMETRICS.replace("<ID>", paymentId),
         headers: this.headers,
       });
       return resp.data;

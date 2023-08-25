@@ -4,12 +4,14 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { base64ToText } from './utils/base64ToText';
 
-import favoritesRoutes from './API/favorites/favoritesRoutes';
+//import favoritesRoutes from './API/favorites/favoritesRoutes';
 import usersRoutes from './API/users/usersRoutes';
 import reservationRoutes from './API/reservation/reservationRoutes';
 import { initializeUserCronJobs } from './cron/userCronInitializer';
 import { startCleanupJob } from './cron/cleanupCrontJob';
 import { startCronJobsForOngoingBuyOrders } from './cron/buyOrder';
+
+import { sendEmail } from './notifications/email';
 
 dotenv.config();
 
@@ -38,9 +40,14 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
         throw new Error("Error connecting to MongoDB");
       });
 
-    app.use('/api/favorites', favoritesRoutes);
+    //app.use('/api/favorites', favoritesRoutes);
     app.use('/api/users', usersRoutes);
     app.use('/api/reservation', reservationRoutes)
+
+    app.use('/test', async(req, res) => {
+      res.send("test")
+      //await sendEmail("paul92g600@live.fr", "http://localhost:3000/test")
+    })
 
     app.listen(port, () => {
       console.log(`Server up on port: ${port}`);

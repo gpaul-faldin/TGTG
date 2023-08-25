@@ -1,5 +1,4 @@
 import { TGTG } from "./TgTg.class";
-import { PaymentBuilder } from "./PaymentBuilder.class";
 
 class Main extends TGTG{
 
@@ -78,6 +77,14 @@ class Main extends TGTG{
   public async GetPaymentMethods(): Promise<any> {
     const paymentMethods = await this.FetchPaymentMethods();
     return paymentMethods;
+  }
+  public async GetPaymentStatus(PaymentId: string): Promise<string> {
+    const paymentStatus = await this.PaymentStatus(PaymentId);
+    return paymentStatus;
+  }
+  public async GetPaymentBiometrics(PaymentId: string): Promise<any> {
+    const paymentBiometrics = await this.PaymentBiometrics(PaymentId);
+    return paymentBiometrics;
   }
 }
 

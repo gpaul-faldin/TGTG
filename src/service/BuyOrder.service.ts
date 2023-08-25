@@ -117,6 +117,18 @@ export class BuyOrderService {
     }
   }
 
+  private async pullStatus(PaymentId: string) {
+    if (!this.main || !this.user || !this.buyOrder) {
+      throw new Error('Run init first');
+    }
+    await this.sleep(1000);
+    console.log(await this.main.GetPaymentStatus(PaymentId));
+    await this.sleep(1000);
+    console.log(await this.main.GetPaymentStatus(PaymentId));
+    await this.sleep(5000);
+    console.log(await this.main.GetPaymentBiometrics(PaymentId));
+  }
+
   async pay(cvc: string = "") {
 
     if (!this.main || !this.user || !this.buyOrder) {
@@ -140,7 +152,9 @@ export class BuyOrderService {
       this.preferredPaymentMethodId = await this.main.GetPaymentMethods();
       this.paymentBuilder = new PaymentBuilder(cvc, this.preferredPaymentMethodId);
 
-      await this.main.PayOrder(orderId, await this.paymentBuilder.buildCvCEncryptedObject());
+      const PayInfo = await this.main.PayOrder(orderId, await this.paymentBuilder.buildCvCEncryptedObject());
+      const PaymentId = PayInfo.payment_id;
+      await this.pullStatus(PaymentId);
       await this.sleep(5000);
       return (await this.UpdateOrderStatus(orderId));
     } catch (error) {
