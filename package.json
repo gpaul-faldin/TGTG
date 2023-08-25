@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx tsc && nodemon ./dist/index.js",
+    "test": "npx tsc && node ./dist/test.js",
     "start": "npx tsc && node ./dist/index.js"
   },
   "author": "Gpaul | faldin",

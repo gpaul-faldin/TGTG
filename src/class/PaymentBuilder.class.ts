@@ -9,6 +9,14 @@ class PaymentBuilder {
   private readonly keySize = 32; // bytes
   private readonly ivSize = 12; // bytes
   private readonly publicKey = "10001|AD7CF1A2F6B8DF1D62391AA66947324E5E425CFCE7336077F1680970660C1752B4E1253679E792FC3EB3B84C40CB376534DD514BE651C449470858FB09B7039A80BFB387140350BAB05FC31075AF3E3675EAD70B8662206BD80D571EEFF03267202A01FD03DA7B75E29EDCDDABCE898D7FA01893FE8C1D4B9AA3BF95AD897D4BA801FC12DEAA46D4830DAAA3EF8EAE70E9AE9DFF489FF428CCABE5D48A24F819FA7A017C94567C5637374ED627F6B4FE932EC9AB69A2F207CA71F89EB73D862A7DE923006B23E496D6AC778573B2D2B55962454AD328D9C0053C2C9997512258A4DBBA56D8810C8547CFFFDB11556016EB182357DAC802183DD57D4AB512D2FD"
+  private cvc: string;
+  private storedPaymentMethodId: string;
+
+  constructor(cvc: string = '', storedPaymentMethodId: string = '') {
+    this.cvc = cvc;
+    this.storedPaymentMethodId = storedPaymentMethodId;
+
+  }
 
   public async buildFullEncryptedObject(
     number: string,
@@ -39,22 +47,23 @@ class PaymentBuilder {
     }
   }
   public async buildCvCEncryptedObject(
-    cvc: string,
-    storedPaymentMethodId: string,
     build: boolean = true
-  ): Promise<object | string> {
+  ): Promise<object | string | null> {
+    if (this.cvc === '' || this.storedPaymentMethodId === '') {
+      return (null);
+    }
     if (build) {
       return JSON.stringify(this.buildFullBody({
         "type": "scheme",
-        "encryptedSecurityCode": await this.encrypt('cvc', cvc),
-        "storedPaymentMethodId": storedPaymentMethodId,
+        "encryptedSecurityCode": await this.encrypt('cvc', this.cvc),
+        "storedPaymentMethodId": this.storedPaymentMethodId,
         "threeDS2SdkVersion": "2.2.10"
       }))
     } else {
       return {
         "type": "scheme",
-        "encryptedSecurityCode": await this.encrypt('cvc', cvc),
-        "storedPaymentMethodId": storedPaymentMethodId,
+        "encryptedSecurityCode": await this.encrypt('cvc', this.cvc),
+        "storedPaymentMethodId": this.storedPaymentMethodId,
         "threeDS2SdkVersion": "2.2.10"
       }
 
