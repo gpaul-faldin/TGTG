@@ -1,8 +1,8 @@
-import { Main } from '../class/Main.class';
-import { PaymentBuilder } from '../class/PaymentBuilder.class';
-import User, { UserDocument } from '../schema/Users.schema';
-import BuyOrder, { BuyOrderDocument } from '../schema/buyOrder.schema';
-import Order from '../schema/order.schema';
+import { Main } from '@class/Main.class';
+import { PaymentBuilder } from '@class/PaymentBuilder.class';
+import User, { UserDocument } from '@schema/Users.schema';
+import BuyOrder, { BuyOrderDocument } from '@schema/buyOrder.schema';
+import Order from '@schema/order.schema';
 
 export class BuyOrderService {
 

@@ -1,8 +1,8 @@
 import cron from 'node-cron';
-import BuyOrder from '../schema/buyOrder.schema';
-import FavoriteStore from '../schema/favoriteStore.schema';
+import BuyOrder from '@schema/buyOrder.schema';
+import FavoriteStore from '@schema/favoriteStore.schema';
 import { BuyOrderService } from '../service/BuyOrder.service';
-import { sendSuccess } from '../notifications/discordWebhook';
+import { sendSuccess } from '@notifications/discordWebhook';
 
 const buyOrderCronMap = new Map<string, cron.ScheduledTask>();
 

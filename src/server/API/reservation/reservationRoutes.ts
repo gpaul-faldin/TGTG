@@ -1,7 +1,7 @@
 import express from 'express';
-import BuyOrder from '../../schema/buyOrder.schema';
-import User from '../../schema/Users.schema';
-import { startBuyOrderCron, removeBuyOrder } from '../../cron/buyOrder';
+import BuyOrder from '@schema/buyOrder.schema';
+import User from '@schema/Users.schema';
+import { startBuyOrderCron, removeBuyOrder } from '@cron/buyOrder';
 
 const router = express.Router();
 

@@ -1,18 +1,18 @@
-// index.ts
+import 'module-alias/register';
 import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
-import { base64ToText } from './utils/base64ToText';
+import { base64ToText } from '@utils/base64ToText';
 
 //import favoritesRoutes from './API/favorites/favoritesRoutes';
-import usersRoutes from './API/users/usersRoutes';
-import reservationRoutes from './API/reservation/reservationRoutes';
-import { initializeUserCronJobs } from './cron/userCronInitializer';
-import { startCleanupJob } from './cron/cleanupCrontJob';
-import { startCronJobsForOngoingBuyOrders } from './cron/buyOrder';
-import { sendSuccess } from './notifications/discordWebhook';
+import usersRoutes from '@server/API/users/usersRoutes';
+import reservationRoutes from '@server/API/reservation/reservationRoutes';
+import { initializeUserCronJobs } from '@cron/userCronInitializer';
+import { startCleanupJob } from '@cron/cleanupCrontJob';
+import { startCronJobsForOngoingBuyOrders } from '@cron/buyOrder';
+import { sendSuccess } from '@notifications/discordWebhook';
 
-import { sendEmail } from './notifications/email';
+import { sendEmailCVV, sendEmailWelcome } from '@notifications/email';
 
 dotenv.config();
 
@@ -21,12 +21,10 @@ const port = process.env.PORT || 5000;
 
 app.use(express.json());
 
-const Email = process.env.EMAIL;
-const Password = process.env.PASSB64;
 const MongoUser = process.env.MONGO_USER;
 const MongoPass = process.env.MONGO_PASSB64;
 
-if (!Email || !Password || !MongoUser || !MongoPass) {
+if (!MongoUser || !MongoPass) {
   throw new Error("Missing environment variables");
 }
 
@@ -45,9 +43,14 @@ if (!Email || !Password || !MongoUser || !MongoPass) {
     app.use('/api/users', usersRoutes);
     app.use('/api/reservation', reservationRoutes)
 
-    app.use('/test', async(req, res) => {
+    app.use('/test/a', async(req, res) => {
       res.send("test")
-      //await sendEmail("paul92g600@live.fr", "http://localhost:3000/test")
+      await sendEmailCVV("paul92g600@live.fr", "http://localhost:5000/")
+    })
+
+    app.use('/test/b', async (req, res) => {
+      res.send("test")
+      await sendEmailWelcome("paul92g600@live.fr")
     })
 
     app.listen(port, () => {

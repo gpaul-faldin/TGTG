@@ -1,6 +1,6 @@
 import * as forge from 'node-forge';
 import * as crypto from 'crypto';
-import { randomBytes, createCipheriv, publicEncrypt, CipherGCMTypes } from 'crypto';
+import { randomBytes, createCipheriv, publicEncrypt } from 'crypto';
 
 class PaymentBuilder {
   private readonly PREFIX = 'adyenan';

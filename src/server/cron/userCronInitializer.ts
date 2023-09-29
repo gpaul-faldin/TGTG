@@ -1,6 +1,6 @@
-import User from '../schema/Users.schema';
-import { Main } from '../class/Main.class';
-import { FavoritesCronJob } from '../utils/CronJobFavoritesBuilder';
+import User from '@schema/Users.schema';
+import { Main } from '@class/Main.class';
+import { FavoritesCronJob } from '@utils/CronJobFavoritesBuilder';
 
 export const initializeUserCronJobs = async () => {
   try {

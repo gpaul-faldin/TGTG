@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { CronBuilder } from "../class/CronBuilder.class";
-import { Main } from "../class/Main.class";
-import FavoriteStore from "../schema/favoriteStore.schema";
-import User from "../schema/Users.schema";
+import { CronBuilder } from "@class/CronBuilder.class";
+import { Main } from "@class/Main.class";
+import FavoriteStore from "@schema/favoriteStore.schema";
+import User from "@schema/Users.schema";
 
 const FavoritesCronJob = async (MainInstance: Main) => {
   return CronBuilder.createAndRun('*/1 * * * *', async () => {

@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import FavoriteStore from "../schema/favoriteStore.schema";
+import FavoriteStore from "@schema/favoriteStore.schema";
 
 const cleanupOldStores = async () => {
   try {

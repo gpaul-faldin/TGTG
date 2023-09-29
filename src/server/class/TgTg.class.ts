@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import User from '../schema/Users.schema';
+import User from '@schema/Users.schema';
 
 const BASE_URL = "https://apptoogoodtogo.com/api/";
 const AUTH_BY_EMAIL_ENDPOINT = "auth/v4/authByEmail"

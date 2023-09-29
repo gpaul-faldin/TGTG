@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { getApkVersion } from '../../utils/getApkVersion';
-import { TGTG } from "../../class/TgTg.class";
-import { Main } from '../../class/Main.class';
-import User from '../../schema/Users.schema';
-import { FavoritesCronJob } from '../../utils/CronJobFavoritesBuilder';
+import { getApkVersion } from '@utils/getApkVersion';
+import { TGTG } from "@class/TgTg.class";
+import { Main } from '@class/Main.class';
+import User from '@schema/Users.schema';
+import { FavoritesCronJob } from '@utils/CronJobFavoritesBuilder';
 
 const router = Router();
 
