@@ -1,4 +1,5 @@
 import 'module-alias/register';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -15,11 +16,10 @@ import { sendSuccess } from '@notifications/discordWebhook';
 import { sendEmailCVV, sendEmailWelcome } from '@notifications/email';
 
 dotenv.config();
-
 const app = express();
 const port = process.env.PORT || 5000;
-
 app.use(express.json());
+app.use(cors());
 
 const MongoUser = process.env.MONGO_USER;
 const MongoPass = process.env.MONGO_PASSB64;
@@ -39,9 +39,13 @@ if (!MongoUser || !MongoPass) {
         throw new Error("Error connecting to MongoDB");
       });
 
-    //app.use('/api/favorites', favoritesRoutes);
     app.use('/api/users', usersRoutes);
     app.use('/api/reservation', reservationRoutes)
+
+
+    app.get('/', (req, res) => {
+      res.send({message: "Hello World"})
+    })
 
     app.use('/test/a', async(req, res) => {
       res.send("test")
