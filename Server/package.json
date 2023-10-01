@@ -27,7 +27,8 @@
     "puppeteer": "^21.0.3",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "quoted-printable": "^1.0.1"
+    "quoted-printable": "^1.0.1",
+    "stripe": "^13.8.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.14",

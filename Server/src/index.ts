@@ -12,6 +12,7 @@ import { initializeUserCronJobs } from '@cron/userCronInitializer';
 import { startCleanupJob } from '@cron/cleanupCrontJob';
 import { startCronJobsForOngoingBuyOrders } from '@cron/buyOrder';
 import { sendSuccess } from '@notifications/discordWebhook';
+import  payment  from '@server/stripe/payment';
 
 import { sendEmailCVV, sendEmailWelcome } from '@notifications/email';
 
@@ -41,6 +42,7 @@ if (!MongoUser || !MongoPass) {
 
     app.use('/api/users', usersRoutes);
     app.use('/api/reservation', reservationRoutes)
+    app.use('/api/stripe', payment)
 
 
     app.get('/', (req, res) => {
