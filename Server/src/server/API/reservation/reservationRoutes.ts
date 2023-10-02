@@ -18,7 +18,7 @@ router.post('/create', async (req, res) => {
     if (!user || !user.active) {
       return res.status(404).json({ message: 'User not found.' });
     }
-    if (user.subscription !== 'premium' && user.isAdmin === false) {
+    if (user.subscription === 'FREE' && user.isAdmin === false) {
       return res.status(403).json({ message: 'User is not premium.' });
     }
 

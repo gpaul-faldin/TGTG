@@ -2,13 +2,16 @@ import mongoose, { Document } from 'mongoose';
 import { OrderDocument } from './order.schema';
 import { FavoriteStoreDocument } from './favoriteStore.schema';
 import { BuyOrderDocument } from './buyOrder.schema';
+import { Subscription } from '@server/Enum/subscription';
+
 
 // Interface for User document
 export interface UserDocument extends Document {
   isAdmin: boolean;
   active: boolean;
   email: string;
-  subscription: string;
+  subscription: Subscription;
+  subscriptionExpiry: Date;
   paymentMethod: {
     cvc: string;
   };
@@ -32,7 +35,8 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   active: Boolean,
   email: { type: String, required: true, unique: true },
-  subscription: { type: String, default: 'free' },
+  subscription: { type: String, enum: Object.values(Subscription), default: Subscription.FREE },
+  subscriptionExpiry: { type: Date, default: Date.now },
   paymentMethod: {
     cvc: String
   },
@@ -66,6 +70,8 @@ const UserSchema = new mongoose.Schema({
     },
   ],
 }, { timestamps: true });
+
+
 
 const User = mongoose.model<UserDocument>('User', UserSchema);
 
