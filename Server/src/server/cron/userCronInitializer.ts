@@ -4,7 +4,14 @@ import { FavoritesCronJob } from '@utils/CronJobFavoritesBuilder';
 
 export const initializeUserCronJobs = async () => {
   try {
-    const userCursor = User.find({ active: true }).cursor();
+    const userCursor = User.find({
+      active: true,
+      email: {
+        $not: {
+          $regex: /\btoogoodtobot\.notifications\b/,
+        }
+      }
+    }).cursor();
 
     for await (const user of userCursor) {
       if (user.login && user.initInfo) {

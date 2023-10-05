@@ -7,8 +7,6 @@ const AUTH_POLLING_ENDPOINT = "auth/v3/authByRequestPollingId"
 const AUTH_BY_REQUEST_PIN_ENDPOINT = "auth/v4/authByRequestPin"
 const PAYMENT_METHODS_ENDPOINT = "paymentMethod/v1"
 const REFRESH_ENDPOINT = "auth/v3/token/refresh"
-const ACTIVE_ORDER_ENDPOINT = "order/v6/active"
-const INACTIVE_ORDER_ENDPOINT = "order/v6/inactive"
 const CREATE_ORDER_ENDPOINT = "order/v7/create/"
 const ABORT_ORDER_ENDPOINT = "order/v7/<ID>/abort"
 const ORDER_STATUS_ENDPOINT = "order/v7/<ID>/status"
@@ -17,11 +15,9 @@ const ORDER_PAY_BIOMETRICS = "payment/v3/<ID>/biometrics"
 const ORDER_PAY_STATUS = "payment/v3/<ID>"
 const API_BUCKET_ENDPOINT = "discover/v1/bucket"
 const DEFAULT_ACCESS_TOKEN_LIFETIME = 14400000 // 4 hours in ms
-const MAX_POLLING_TRIES = 24
-const POLLING_WAIT_TIME = 10
 
 class TGTG {
-  private readonly email: string;
+  public readonly email: string;
   private accessToken: string;
   private refreshToken: string;
   private userId: string;
@@ -203,7 +199,6 @@ class TGTG {
     }
     return "Error"
   }
-
   protected async GetFavorites(): Promise<any> {
     await this.Login()
 
@@ -255,6 +250,28 @@ class TGTG {
             "longitude": 0.0
           }
         }
+      })
+      return resp.data;
+    } catch (err: any | AxiosError) {
+      if (axios.isAxiosError(err)) {
+        throw new Error(JSON.stringify({
+          message: err.response?.data.message || err.message,
+          code: err.response?.status || 500
+        }));
+      } else {
+        throw err;
+      }
+    }
+  }
+  protected async AddFavorite(store_id: string): Promise<any> {
+    await this.Login()
+
+    try {
+      const resp = await axios({
+        method: 'post',
+        url: BASE_URL + `item/v7/${store_id}/setFavorite`,
+        headers: this.headers,
+        data: { "is_favorite": true }
       })
       return resp.data;
     } catch (err: any | AxiosError) {
