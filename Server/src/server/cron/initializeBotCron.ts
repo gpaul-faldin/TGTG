@@ -6,9 +6,7 @@ export const initializeBotCron = async () => {
   try {
     const userCursor = User.find({
       active: true,
-      email: {
-          $regex: /\btoogoodtobot\.notifications\b/,
-      }
+      isBot: true
     }).cursor();
     const arrayOfInstances: Array<Main> = []
 

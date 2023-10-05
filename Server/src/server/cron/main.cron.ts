@@ -7,8 +7,8 @@ import { initializeUserCronJobs } from "./userCronInitializer";
 export const startCronJobs = () => {
 
 startCleanupJob();
-//initializeUserCronJobs();
-initializeBotCron();
+initializeUserCronJobs();
+//initializeBotCron();
 startCronJobsForOngoingBuyOrders();
 startSubscriptionCronJob();
 }

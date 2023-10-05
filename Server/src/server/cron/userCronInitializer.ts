@@ -6,11 +6,7 @@ export const initializeUserCronJobs = async () => {
   try {
     const userCursor = User.find({
       active: true,
-      email: {
-        $not: {
-          $regex: /\btoogoodtobot\.notifications\b/,
-        }
-      }
+      isBot: false
     }).cursor();
 
     for await (const user of userCursor) {
