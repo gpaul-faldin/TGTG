@@ -6,7 +6,6 @@ export const initializeUserCronJobs = async () => {
   try {
     const userCursor = User.find({
       active: true,
-      isBot: false
     }).cursor();
 
     for await (const user of userCursor) {

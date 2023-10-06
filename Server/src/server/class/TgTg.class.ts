@@ -49,6 +49,9 @@ class TGTG {
       }
   }
 
+  /*
+    UTILS
+  */
   private LoggedIn() {
     return this.accessToken !== '' && this.refreshToken !== '' && this.userId !== '';
   }
@@ -94,6 +97,21 @@ class TGTG {
       }
     }
   }
+  protected async UpdateUser() {
+    await User.findOneAndUpdate({ email: this.email }, {
+      login: {
+        accessToken: this.accessToken,
+        refreshToken: this.refreshToken,
+        tokenAge: this.tokenAge,
+        userId: this.userId,
+        cookie: this.headers['Cookie']
+      }
+    })
+  }
+
+  /*
+    AUTHENTIFICATION
+  */
   public async Login(): Promise<string | null> {
     if (this.LoggedIn()) {
       await this.TokenRefresh();
@@ -199,7 +217,11 @@ class TGTG {
     }
     return "Error"
   }
-  protected async GetFavorites(): Promise<any> {
+
+  /*
+    FAVORITES
+  */
+  protected async GetFavorites(page: Number = 0): Promise<any> {
     await this.Login()
 
     try {
@@ -215,7 +237,7 @@ class TGTG {
           radius: 10.0,
           user_id: this.userId,
           paging: {
-            page: 0,
+            page: page,
             size: 50
           },
           bucket: {
@@ -223,12 +245,14 @@ class TGTG {
           }
         }
       });
+      this.headers['Cookie'] = resp.headers['set-cookie'] ? resp.headers['set-cookie'].join('; ') : '';;
       return resp.data.mobile_bucket.items;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(JSON.stringify({
+        console.log(JSON.stringify({
           message: err.response?.data.message || err.message,
-          code: err.response?.status || 500
+          code: err.response?.status || 500,
+          page: page
         }));
       } else {
         throw err;
@@ -285,6 +309,10 @@ class TGTG {
       }
     }
   }
+
+  /*
+    ORDERS
+  */
   protected async CreateOrder(itemId: string, itemCount: number) {
     await this.Login()
 
@@ -333,6 +361,10 @@ class TGTG {
       }
     }
   }
+
+  /*
+    PAYMENT
+  */
   protected async FetchPaymentMethods() {
     await this.Login()
 
@@ -370,7 +402,6 @@ class TGTG {
       }
     }
   }
-
   protected async Pay(orderId: string, payload: object) {
     await this.Login()
 

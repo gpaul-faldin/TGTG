@@ -14,7 +14,9 @@ class Main extends TGTG{
     super(email, apkVersion, accessToken, refreshToken, userId, tokenAge, cookie);
   }
 
-  /*UTILS*/
+  /*
+    UTILS
+  */
 
   private GetStoresInfo(items: any[]): any[] {
 
@@ -41,11 +43,27 @@ class Main extends TGTG{
     }
   }
 
-  /*ENDPOINTS*/
+  /*
+    ENDPOINTS
+  */
 
   public async GetFavoritesInfos() {
-    const items = await this.GetFavorites();
+    const items: Array<any> = [];
+    var loop: boolean = true;
+    var page: number = 0;
+
+    while (loop === true) {
+      const itemsContainer = await this.GetFavorites(page);
+      items.push(...itemsContainer);
+      if (itemsContainer.length !== 50) {
+        loop = false;
+      } else {
+        page += 1;
+      }
+    }
+
     const itemsInfo = this.GetStoresInfo(items);
+    await this.UpdateUser()
     return itemsInfo;
   }
   public async GetFavoriteInfos(itemId: string) {
