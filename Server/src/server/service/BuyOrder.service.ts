@@ -2,7 +2,7 @@ import { Main } from '@class/Main.class';
 import { PaymentBuilder } from '@class/PaymentBuilder.class';
 import User, { UserDocument } from '@schema/Users.schema';
 import BuyOrder, { BuyOrderDocument } from '@schema/buyOrder.schema';
-import Order from '@schema/order.schema';
+import Order, { OrderDocument } from '@schema/order.schema';
 
 export class BuyOrderService {
 
@@ -89,12 +89,15 @@ export class BuyOrderService {
     try {
       const status = await this.main.GetStatus(orderId);
 
-      const order = await Order.findOne({ orderId: orderId });
+      const order: OrderDocument | null = await Order.findOneAndUpdate(
+        { orderId: orderId },
+        { $set: { state: status }, $unset: { buyOrder: 1 } },
+        { new: true, select: '-buyOrder' }
+      ).exec();
+
       if (!order) {
         throw new Error('Order not found.');
       }
-      order.state = status;
-      await order.save();
 
       this.buyOrder.state = status;
       await this.buyOrder.save();
