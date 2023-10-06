@@ -18,7 +18,7 @@ export interface FavoriteStoreDocument extends Document {
 const FavoriteStoreSchema = new mongoose.Schema({
   name: String,
   quantity: { type: Number, required: true },
-  oldQuantity: { type: Number, required: true, default: 0 },
+  oldQuantity: { type: Number, default: 0 },
   info: {
     logoPicture: String,
     address: String
