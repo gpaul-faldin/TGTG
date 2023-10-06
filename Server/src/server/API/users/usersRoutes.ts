@@ -3,6 +3,7 @@ import { getApkVersion } from '@utils/getApkVersion';
 import { TGTG } from "@class/TgTg.class";
 import { Main } from '@class/Main.class';
 import User from '@schema/Users.schema';
+import Notifications from '@server/schema/notifications.schema';
 import { FavoritesCronJob } from '@utils/CronJobFavoritesBuilder';
 
 const router = Router();
@@ -78,7 +79,7 @@ router.post('/validateRegister', async (req: Request, res: Response) => {
           tokenAge: info.tokenAge,
           userId: info.userId,
           cookie: info.cookie,
-        },
+        }
       });
 
       const updatedUser = await User.findOne({ email });

@@ -1,5 +1,6 @@
 import nodemailer, {Transporter} from "nodemailer";
 import { base64ToText } from "@utils/base64ToText";
+import { FavoriteStoreDocument } from "@server/schema/favoriteStore.schema";
 
 var TRANSPORTER: Transporter | null = null;
 
@@ -108,4 +109,53 @@ const sendEmailWelcome = async (To: string) => {
 
 };
 
-export { sendEmailCVV, sendEmailWelcome };
+const sendEmailNotification = async (To: string, FavoriteStore: FavoriteStoreDocument) => {
+
+  if (TRANSPORTER === null) {
+    initTransporter();
+  }
+  if (TRANSPORTER !== null) {
+
+    let notificationText = FavoriteStore.in_sales_window ? 'back in stock' : 'available now';
+    let itemName = FavoriteStore.name;
+    let itemPrice = FavoriteStore.price;
+
+    let info = await TRANSPORTER.sendMail({
+      from: process.env.ADMIN_EMAIL,
+      to: To,
+      subject: `Notification: ${itemName} is available now`,
+      html: `
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Notification: ${itemName} is back in stock !</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 20px; box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #333;">Notification: ${itemName} is is back in stock !</h2>
+        <img src="${FavoriteStore.info.logoPicture}" alt="${itemName} Logo" style="max-width: 100px; margin-bottom: 10px;">
+        <p>Hello,</p>
+        <p>We wanted to let you know that the item "${itemName}" is ${notificationText}.</p>
+        <p>Price: ${itemPrice}$</p>
+        <p>Quantity: ${FavoriteStore.quantity}</p>
+        <p>Address: ${FavoriteStore.info.address}</p>
+        <p>If you are interested, open Too Good To Go now !</p>
+        <p>If you missed it, we can only encourage you to upgrade to a plus or pro subscription to never miss a magic bag again!</p>
+        <p>Thank you for using our service!</p>
+        <p>Best regards,</p>
+        <p>The Too Good To Bot Team</p>
+      </div>
+  </body>
+</html>
+
+`,
+    });
+
+    return info;
+  }
+
+  return null;
+};
+
+
+export { sendEmailCVV, sendEmailWelcome, sendEmailNotification };

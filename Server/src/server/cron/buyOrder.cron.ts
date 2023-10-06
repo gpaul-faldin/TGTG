@@ -68,7 +68,7 @@ const startCronJobsForOngoingBuyOrders = async () => {
   try {
     const ongoingBuyOrders = await BuyOrder.find({ state: 'ONGOING' }).populate('user');
 
-    let startedCount = 0; // To keep track of the number of started buy orders
+    let startedCount = 0;
 
     for (const buyOrder of ongoingBuyOrders) {
       var scheduleString = schedule[buyOrder.user.subscription]

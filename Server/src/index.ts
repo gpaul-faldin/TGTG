@@ -11,8 +11,10 @@ import usersRoutes from '@server/API/users/usersRoutes';
 import reservationRoutes from '@server/API/reservation/reservationRoutes';
 import { sendSuccess } from '@notifications/discordWebhook';
 import  payment  from '@server/stripe/payment';
-import { sendEmailCVV, sendEmailWelcome } from '@notifications/email';
+import { sendEmailCVV, sendEmailNotification, sendEmailWelcome } from '@notifications/email';
 import { startCronJobs } from '@server/cron/main.cron';
+import Notifications from '@server/schema/notifications.schema';
+import FavoriteStore from '@server/schema/favoriteStore.schema';
 
 
 const app = express();
@@ -61,6 +63,13 @@ if (!MongoUser || !MongoPass) {
     app.use('/test/b', async (req, res) => {
       res.send("test")
       await sendEmailWelcome("paul92g600@live.fr")
+    })
+    app.use('/test/c', async (req, res) => {
+      const store = await FavoriteStore.findById("65207b772856f0528ae5836c")
+      if (!store)
+        return res.send("KO")
+      sendEmailNotification("paul92g600@live.fr", store)
+      res.send("OK")
     })
 
     app.listen(port, () => {

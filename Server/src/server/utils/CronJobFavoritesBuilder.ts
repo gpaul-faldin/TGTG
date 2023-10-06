@@ -3,6 +3,7 @@ import { CronBuilder } from "@class/CronBuilder.class";
 import { Main } from "@class/Main.class";
 import FavoriteStore from "@schema/favoriteStore.schema";
 import User from "@schema/Users.schema";
+import Notifications from "@server/schema/notifications.schema";
 
 export const FavoritesCronJob = async (MainInstance: Main) => {
   return CronBuilder.createAndRun('*/5 * * * * *', async () => {
@@ -11,15 +12,42 @@ export const FavoritesCronJob = async (MainInstance: Main) => {
       if (userInfo) {
         const items = await MainInstance.GetFavoritesInfos();
 
-        // Update or insert favorite stores
         const newFavoriteStoreIds: mongoose.Types.ObjectId[] = [];
         for (const item of items) {
-          const result = await FavoriteStore.findOneAndUpdate(
-            { store_id: item.store_id },
-            item,
-            { upsert: true, new: true }
+
+          const originalQuantity = await FavoriteStore.findOne(
+            { item_id: item.item_id, store_id: item.store_id },
+            { quantity: 1 }
           );
-          newFavoriteStoreIds.push(result._id);
+
+          if (originalQuantity && originalQuantity.quantity !== item.quantity) {
+            new Notifications({
+              subscriptionStatus: {
+                FREE: false,
+                STARTER: false,
+                PLUS: false,
+                PRO: false,
+              },
+              favoriteStores: originalQuantity._id,
+              state: 'inactive'
+            }).save();
+            await FavoriteStore.findByIdAndUpdate(
+              originalQuantity._id,
+              { $set: { oldQuantity: originalQuantity.quantity } }
+            );
+            const result = await FavoriteStore.findByIdAndUpdate(
+              originalQuantity._id,
+              item,
+              { new: true }
+            );
+
+            if (result)
+              newFavoriteStoreIds.push(result._id);
+          } else if (!originalQuantity) {
+            const newFavoriteStore = new FavoriteStore(item);
+            const result = await newFavoriteStore.save();
+            newFavoriteStoreIds.push(result._id);
+          }
         }
 
         // First, remove stores not in newFavoriteStoreIds

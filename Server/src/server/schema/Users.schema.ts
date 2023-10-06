@@ -1,6 +1,7 @@
 import mongoose, { Document } from 'mongoose';
 import { OrderDocument } from './order.schema';
 import { FavoriteStoreDocument } from './favoriteStore.schema';
+import { NotificationsDocument } from './notifications.schema';
 import { BuyOrderDocument } from './buyOrder.schema';
 import { Subscription } from '@server/Enum/subscription';
 
@@ -68,7 +69,7 @@ const UserSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'BuyOrder',
     },
-  ],
+  ]
 }, { timestamps: true });
 
 

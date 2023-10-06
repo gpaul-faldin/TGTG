@@ -29,6 +29,10 @@ class Main extends TGTG{
         store_id: items[i].store.store_id,
         item_id: items[i].item.item_id,
         in_sales_window: items[i].in_sales_window,
+        info: {
+          logoPicture: items[i].store.logo_picture.current_url,
+          address: items[i].store.store_location.address.address_line
+        },
         price: items[i].item.price_excluding_taxes.minor_units / Math.pow(10, items[i].item.price_excluding_taxes.decimals),
       })
     }
@@ -52,7 +56,7 @@ class Main extends TGTG{
     var loop: boolean = true;
     var page: number = 0;
 
-    while (loop === true) {
+    while (loop === true && page < 3) {
       const itemsContainer = await this.GetFavorites(page);
       items.push(...itemsContainer);
       if (itemsContainer.length !== 50) {
