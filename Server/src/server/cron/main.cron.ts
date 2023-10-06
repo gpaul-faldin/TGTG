@@ -1,12 +1,12 @@
-import { startCronJobsForOngoingBuyOrders } from "./buyOrder";
-import { startCleanupJob } from "./cleanupCrontJob";
-import { startSubscriptionCronJob } from "./subscriptionExpiry";
-import { initializeUserCronJobs } from "./userCronInitializer";
+import { startCronJobsForOngoingBuyOrders } from "./buyOrder.cron";
+import { startCleanupJob } from "./cleanupJob.cron";
+import { startSubscriptionCronJob } from "./subscriptionExpiry.cron";
+import { FavoriteScanCronInitializer } from "./FavoriteScan.cron";
 
 export const startCronJobs = () => {
 
-startCleanupJob();
-initializeUserCronJobs();
-startCronJobsForOngoingBuyOrders();
-startSubscriptionCronJob();
+  startCleanupJob();
+  FavoriteScanCronInitializer();
+  startCronJobsForOngoingBuyOrders();
+  startSubscriptionCronJob();
 }
