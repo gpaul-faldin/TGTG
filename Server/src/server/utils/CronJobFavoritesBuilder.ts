@@ -19,6 +19,11 @@ export const FavoritesCronJob = async (MainInstance: Main) => {
             let favoriteStore = await FavoriteStore.findOne({ item_id: items[x].item_id });
             if (favoriteStore)
               FavoriteStoreIds.push(favoriteStore._id);
+            else {
+              let newFavoriteStore = new FavoriteStore(items[x]);
+              await newFavoriteStore.save();
+              FavoriteStoreIds.push(newFavoriteStore._id);
+            }
           }
         }
 
