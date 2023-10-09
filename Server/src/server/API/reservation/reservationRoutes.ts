@@ -25,9 +25,6 @@ router.post('/create', async (req, res) => {
     if (!user || !user.active) {
       return res.status(404).json({ message: 'User not found.' });
     }
-    if (user.subscription === 'FREE' && user.isAdmin === false) {
-      return res.status(403).json({ message: 'User is not premium.' });
-    }
 
     const buyOrder = new BuyOrder({
       user: user._id,
@@ -88,6 +85,10 @@ router.delete('/remove/:id', async (req, res) => {
     console.error('Error removing BuyOrder:', err);
     res.status(500).json({ message: 'Internal Server Error.' });
   }
+});
+
+router.get('/', async (req, res) => {
+  res.send("OK")
 });
 
 export default router;

@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken';
 import { getApkVersion } from '@utils/getApkVersion';
 import { TGTG } from "@class/TgTg.class";
 import { Main } from '@class/Main.class';
@@ -16,7 +18,11 @@ router.post('/register', async (req: Request, res: Response) => {
 
   try {
     const apkVersion = await getApkVersion();
-    const { email } = req.body;
+    const { email, password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: 'password' });
+    }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -28,6 +34,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
     const user = new User({
       email,
+      password: bcrypt.hashSync(password, 10),
       active: false,
       initInfo: {
         pollingId,
@@ -109,6 +116,36 @@ router.post('/validateRegister', async (req: Request, res: Response) => {
     console.error('Failed to validate:', err);
     res.status(500).json({ message: 'Failed to validate' });
   }
+});
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Missing username or password' });
+  }
+
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    return res.status(401).json({ message: 'User is unkown' });
+  }
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(401).json({ message: 'Invalid password' });
+  }
+
+  let userToken = jwt.sign({
+    id: user._id,
+    isAdmin: user.isAdmin,
+    Subscription: user.subscription
+  }, process.env.JWT_SECRET as string, { expiresIn: '365 days' }
+  )
+
+  // Return JWT token
+  res.setHeader('jwt', userToken)
+  res.json({
+    message: 'Login successful'
+  });
 });
 
 // router.put('/updateSubscription', async (req: Request, res: Response) => {

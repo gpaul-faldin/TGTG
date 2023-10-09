@@ -11,6 +11,7 @@ export interface UserDocument extends Document {
   isAdmin: boolean;
   active: boolean;
   email: string;
+  password: string;
   subscription: Subscription;
   subscriptionExpiry: Date;
   paymentMethod: {
@@ -36,6 +37,7 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   active: Boolean,
   email: { type: String, required: true, unique: true },
+  password: { type: String, required: true},
   subscription: { type: String, enum: Object.values(Subscription), default: Subscription.FREE },
   subscriptionExpiry: { type: Date, default: Date.now },
   paymentMethod: {
