@@ -148,11 +148,4 @@ router.post('/login', async (req, res) => {
   });
 });
 
-// router.put('/updateSubscription', async (req: Request, res: Response) => {
-//   const { email, subscription, cvc} = req.body;
-  
-//   if (!email || !subscription || !cvc) {
-//     return res.status(400).json({ message: 'Missing email, subscription or cvc' });
-//   }
-
 export default router;

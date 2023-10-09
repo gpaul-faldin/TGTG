@@ -58,12 +58,15 @@ class Main extends TGTG{
 
     while (loop === true && page < 3) {
       const itemsContainer = await this.GetFavorites(page);
-      items.push(...itemsContainer);
-      if (itemsContainer.length !== 50) {
-        loop = false;
-      } else {
-        page += 1;
-      }
+      if (itemsContainer) {
+        items.push(...itemsContainer);
+        if (itemsContainer.length !== 50) {
+          loop = false;
+        } else {
+          page += 1;
+        }
+      } else 
+        await this.UpdateUser();
     }
 
     const itemsInfo = this.GetStoresInfo(items);
