@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   active: Boolean,
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true},
+  password: { type: String, required: false},
   subscription: { type: String, enum: Object.values(Subscription), default: Subscription.FREE },
   subscriptionExpiry: { type: Date, default: Date.now },
   paymentMethod: {

@@ -16,7 +16,7 @@ const schedule = {
 const startBuyOrderCron = (buyOrderId: string, schedule: string) => {
   const cronJob = cron.schedule(schedule, async () => {
     try {
-      const buyOrder = await BuyOrder.findById(buyOrderId);
+      const buyOrder = await BuyOrder.findOne({_id: buyOrderId, state: 'ONGOING'});
 
       if (!buyOrder) {
         console.error(`Buy Order with ID ${buyOrderId} not found.`);
@@ -33,6 +33,7 @@ const startBuyOrderCron = (buyOrderId: string, schedule: string) => {
       }
 
       if (buyOrder.quantity <= favoriteStore.quantity) {
+        await BuyOrder.findByIdAndUpdate(buyOrderId, { state: 'APPROVED' });
         const buyOrderService = new BuyOrderService(buyOrder._id.toString());
         await buyOrderService.init();
         const paySuccess = await buyOrderService.pay()

@@ -13,8 +13,8 @@ export const FavoritesCronJob = async (MainInstance: Main) => {
         const items = await MainInstance.GetFavoritesInfos();
 
         var FavoriteStoreIds: mongoose.Types.ObjectId[] = [];
-
         if (userInfo.favoriteStores.length !== items.length) {
+
           for (let x = 0; x < items.length; x++) {
             let favoriteStore = await FavoriteStore.findOne({ item_id: items[x].item_id });
             if (favoriteStore)
@@ -28,23 +28,24 @@ export const FavoritesCronJob = async (MainInstance: Main) => {
         }
 
         for (const item of items) {
-
           const originalQuantity = await FavoriteStore.findOne(
             { item_id: item.item_id, store_id: item.store_id },
             { quantity: 1 }
           );
 
           if (originalQuantity && originalQuantity.quantity !== item.quantity) {
-            new Notifications({
-              subscriptionStatus: {
-                FREE: false,
-                STARTER: false,
-                PLUS: false,
-                PRO: false,
-              },
-              favoriteStores: originalQuantity._id,
-              state: 'inactive'
-            }).save();
+            if (item.quantity > 0) {
+              new Notifications({
+                subscriptionStatus: {
+                  FREE: false,
+                  STARTER: false,
+                  PLUS: false,
+                  PRO: false,
+                },
+                favoriteStores: originalQuantity._id,
+                state: 'inactive'
+              }).save();
+            }
             await FavoriteStore.findByIdAndUpdate(
               originalQuantity._id,
               { $set: { oldQuantity: originalQuantity.quantity } }
@@ -54,6 +55,10 @@ export const FavoritesCronJob = async (MainInstance: Main) => {
               item,
               { new: true }
             );
+          }
+          else if (!originalQuantity) {
+            let newFavoriteStore = new FavoriteStore(item);
+            await newFavoriteStore.save();
           }
         }
 
