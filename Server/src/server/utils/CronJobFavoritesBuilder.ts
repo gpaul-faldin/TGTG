@@ -35,16 +35,16 @@ export const FavoritesCronJob = async (MainInstance: Main) => {
 
           if (originalQuantity && originalQuantity.quantity !== item.quantity) {
             if (item.quantity > 0) {
-              new Notifications({
-                subscriptionStatus: {
-                  FREE: false,
-                  STARTER: false,
-                  PLUS: false,
-                  PRO: false,
-                },
-                favoriteStores: originalQuantity._id,
-                state: 'inactive'
-              }).save();
+              // new Notifications({
+              //   subscriptionStatus: {
+              //     FREE: false,
+              //     STARTER: false,
+              //     PLUS: false,
+              //     PRO: false,
+              //   },
+              //   favoriteStores: originalQuantity._id,
+              //   state: 'inactive'
+              // }).save();
             }
             await FavoriteStore.findByIdAndUpdate(
               originalQuantity._id,

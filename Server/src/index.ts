@@ -80,7 +80,7 @@ if (!MongoUser || !MongoPass) {
 
     //CRON
     startCronJobs()
-    //////////await sendSuccess("Server started")
+    await sendSuccess("Server started")
 
   } catch (error) {
     console.error('An error occurred during initialization:', error);

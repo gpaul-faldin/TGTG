@@ -19,7 +19,7 @@ const startBuyOrderCron = (buyOrderId: string, schedule: string) => {
       const buyOrder = await BuyOrder.findOne({_id: buyOrderId, state: 'ONGOING'});
 
       if (!buyOrder) {
-        console.error(`Buy Order with ID ${buyOrderId} not found.`);
+        console.error(`Buy Order with ID ${buyOrderId} is already running`);
         return;
       }
 
