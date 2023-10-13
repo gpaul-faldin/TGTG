@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
+import Router from "next/router";
 
 function index() {
-
+  const router = Router;
   const [data, setData] = useState<string>("Loading...");
 
   useEffect(() => {
-    fetch("http://localhost:8080/")
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        setData(data.message);
-      });
+    router.push("/login");
   }, []);
 
   return <div>{data}</div>;
