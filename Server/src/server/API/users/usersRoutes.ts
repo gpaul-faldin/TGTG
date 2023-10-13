@@ -1,19 +1,18 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from 'jsonwebtoken';
-import { getApkVersion } from '@utils/getApkVersion';
+import jwt from "jsonwebtoken";
+import { getApkVersion } from "@utils/getApkVersion";
 import { TGTG } from "@class/TgTg.class";
-import { Main } from '@class/Main.class';
-import User from '@schema/Users.schema';
-import Notifications from '@server/schema/notifications.schema';
-import { FavoritesCronJob } from '@utils/CronJobFavoritesBuilder';
+import { Main } from "@class/Main.class";
+import User, { UserDocument } from "@schema/Users.schema";
+import Notifications from "@server/schema/notifications.schema";
+import { FavoritesCronJob } from "@utils/CronJobFavoritesBuilder";
 
 const router = Router();
 
-router.post('/register', async (req: Request, res: Response) => {
-
+router.post("/register", async (req: Request, res: Response) => {
   if (!req.body.email) {
-    return res.status(400).json({ message: 'Missing email' });
+    return res.status(400).json({ message: "Missing email" });
   }
 
   try {
@@ -21,16 +20,16 @@ router.post('/register', async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!password) {
-      return res.status(400).json({ message: 'password' });
+      return res.status(400).json({ message: "password" });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: 'Email already registered' });
+      return res.status(400).json({ message: "Email already registered" });
     }
 
     const TooGood = new TGTG(email, apkVersion);
-    const pollingId = await TooGood.Login()
+    const pollingId = await TooGood.Login();
 
     const user = new User({
       email,
@@ -39,23 +38,22 @@ router.post('/register', async (req: Request, res: Response) => {
       initInfo: {
         pollingId,
         apkVersion,
-      }
+      },
     });
     await user.save();
 
-    res.status(201).json({ message: 'Email registered successfully', user });
-
+    res.status(201).json({ message: "Email registered successfully" });
   } catch (err) {
-    console.error('Failed to register:', err);
-    res.status(500).json({ message: 'Failed to register' });
+    console.error("Failed to register:", err);
+    res.status(500).json({ message: "Failed to register" });
   }
 });
 
-router.post('/validateRegister', async (req: Request, res: Response) => {
+router.post("/validateRegister", async (req: Request, res: Response) => {
   const { email, code } = req.body;
 
   if (!email || !code) {
-    return res.status(400).json({ message: 'Missing email or code' });
+    return res.status(400).json({ message: "Missing email or code" });
   }
 
   try {
@@ -63,14 +61,14 @@ router.post('/validateRegister', async (req: Request, res: Response) => {
 
     // Validate the user's state
     if (!user) {
-      return res.status(404).json({ message: 'Email not registered' });
+      return res.status(404).json({ message: "Email not registered" });
     }
     if (user.active) {
-      return res.status(400).json({ message: 'Email already validated' });
+      return res.status(400).json({ message: "Email already validated" });
     }
     if (!user.initInfo) {
-      console.error('User data is incomplete:', user);
-      return res.status(500).json({ message: 'User data is incomplete.' });
+      console.error("User data is incomplete:", user);
+      return res.status(500).json({ message: "User data is incomplete." });
     }
 
     const TooGood = new TGTG(email, user.initInfo.apkVersion);
@@ -86,7 +84,7 @@ router.post('/validateRegister', async (req: Request, res: Response) => {
           tokenAge: info.tokenAge,
           userId: info.userId,
           cookie: info.cookie,
-        }
+        },
       });
 
       const updatedUser = await User.findOne({ email });
@@ -103,49 +101,70 @@ router.post('/validateRegister', async (req: Request, res: Response) => {
         );
         await FavoritesCronJob(mainInstance);
       } else {
-        console.error('Failed to initialize Main after validation:', updatedUser);
+        console.error(
+          "Failed to initialize Main after validation:",
+          updatedUser
+        );
       }
-
     } catch (err: any) {
       return res.status(400).json({ message: err.message });
     }
 
-    res.status(200).json({ message: 'Account is registered', user });
-
+    res.status(200).json({ message: "Account is registered", user });
   } catch (err) {
-    console.error('Failed to validate:', err);
-    res.status(500).json({ message: 'Failed to validate' });
+    console.error("Failed to validate:", err);
+    res.status(500).json({ message: "Failed to validate" });
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Missing username or password' });
+    return res.status(400).json({ message: "Missing username or password" });
   }
 
   const user = await User.findOne({ email: email });
 
   if (!user) {
-    return res.status(401).json({ message: 'User is unkown' });
+    return res.status(401).json({ message: "User is unkown" });
   }
   if (!bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ message: 'Invalid password' });
+    return res.status(401).json({ message: "Invalid password" });
   }
 
-  let userToken = jwt.sign({
-    id: user._id,
-    isAdmin: user.isAdmin,
-    Subscription: user.subscription
-  }, process.env.JWT_SECRET as string, { expiresIn: '365 days' }
-  )
+  let userToken = jwt.sign(
+    {
+      id: user._id,
+      isAdmin: user.isAdmin,
+      Subscription: user.subscription,
+    },
+    process.env.JWT_SECRET as string,
+    { expiresIn: "365 days" }
+  );
 
   // Return JWT token
-  res.setHeader('jwt', userToken)
+  res.setHeader("jwt", userToken);
   res.json({
-    message: 'Login successful'
+    message: "Login successful",
   });
+});
+
+router.put("/setpassword/:id", async (req: Request, res: Response) => {
+  if (!req.body || req.body.password)
+    return res.status(400).send("Body is invalid or does not exist");
+
+  try {
+    await User.findByIdAndUpdate(
+      { _id: req.params.id },
+      { $set: { password: req.body.password } }
+    );
+    return res.send(`Password updated correctly for ${req.params.id}`);
+  } catch (e) {
+    return res
+      .status(400)
+      .send("The user is unknown or the update could not be applied");
+  }
 });
 
 export default router;
