@@ -1,9 +1,16 @@
 import express from 'express';
 import BuyOrder from '@schema/buyOrder.schema';
 import User from '@schema/Users.schema';
-import { startBuyOrderCron, removeBuyOrder } from '@cron/buyOrder';
+import { startBuyOrderCron, removeBuyOrder } from '@server/cron/buyOrder.cron';
 
 const router = express.Router();
+
+const schedule = {
+  "FREE": "* */1 * * * *",
+  "STARTER": "*/30 * * * * *",
+  "PLUS": "*/15 * * * * *",
+  "PRO": "*/5 * * * * *",
+}
 
 router.post('/create', async (req, res) => {
   const { userId, item_id, quantity, store_id } = req.body;
@@ -17,9 +24,6 @@ router.post('/create', async (req, res) => {
 
     if (!user || !user.active) {
       return res.status(404).json({ message: 'User not found.' });
-    }
-    if (user.subscription === 'FREE' && user.isAdmin === false) {
-      return res.status(403).json({ message: 'User is not premium.' });
     }
 
     const buyOrder = new BuyOrder({
@@ -35,7 +39,8 @@ router.post('/create', async (req, res) => {
     user.buyOrders.push(buyOrder._id);
     await user.save();
 
-    startBuyOrderCron(buyOrder._id.toString());
+    var scheduleString = schedule[user.subscription]
+    startBuyOrderCron(buyOrder._id.toString(), scheduleString);
 
     res.status(201).json({ message: 'BuyOrder created successfully.', buyOrder });
   } catch (err) {
@@ -80,6 +85,10 @@ router.delete('/remove/:id', async (req, res) => {
     console.error('Error removing BuyOrder:', err);
     res.status(500).json({ message: 'Internal Server Error.' });
   }
+});
+
+router.get('/', async (req, res) => {
+  res.send("OK")
 });
 
 export default router;

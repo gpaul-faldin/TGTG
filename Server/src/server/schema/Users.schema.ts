@@ -1,6 +1,7 @@
 import mongoose, { Document } from 'mongoose';
 import { OrderDocument } from './order.schema';
 import { FavoriteStoreDocument } from './favoriteStore.schema';
+import { NotificationsDocument } from './notifications.schema';
 import { BuyOrderDocument } from './buyOrder.schema';
 import { Subscription } from '@server/Enum/subscription';
 
@@ -8,9 +9,9 @@ import { Subscription } from '@server/Enum/subscription';
 // Interface for User document
 export interface UserDocument extends Document {
   isAdmin: boolean;
-  isBot: boolean;
   active: boolean;
   email: string;
+  password: string;
   subscription: Subscription;
   subscriptionExpiry: Date;
   paymentMethod: {
@@ -34,9 +35,9 @@ export interface UserDocument extends Document {
 
 const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
-  isBot: { type: Boolean, default: false },
   active: Boolean,
   email: { type: String, required: true, unique: true },
+  password: { type: String, required: false},
   subscription: { type: String, enum: Object.values(Subscription), default: Subscription.FREE },
   subscriptionExpiry: { type: Date, default: Date.now },
   paymentMethod: {
@@ -70,7 +71,7 @@ const UserSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'BuyOrder',
     },
-  ],
+  ]
 }, { timestamps: true });
 
 

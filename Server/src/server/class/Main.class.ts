@@ -1,24 +1,32 @@
 import { TGTG } from "./TgTg.class";
 
-class Main extends TGTG{
-
+class Main extends TGTG {
   constructor(
     email: string,
     apkVersion: string,
-    accessToken: string = '',
-    refreshToken: string = '',
-    userId: string = '',
+    accessToken: string = "",
+    refreshToken: string = "",
+    userId: string = "",
     tokenAge: number = 0,
-    cookie: string = '',
-    ) {
-    super(email, apkVersion, accessToken, refreshToken, userId, tokenAge, cookie);
+    cookie: string = ""
+  ) {
+    super(
+      email,
+      apkVersion,
+      accessToken,
+      refreshToken,
+      userId,
+      tokenAge,
+      cookie
+    );
   }
 
-  /*UTILS*/
+  /*
+    UTILS
+  */
 
   private GetStoresInfo(items: any[]): any[] {
-
-    var re: any[] = []
+    var re: any[] = [];
 
     for (let i = 0; i < items.length; i++) {
       re.push({
@@ -27,8 +35,14 @@ class Main extends TGTG{
         store_id: items[i].store.store_id,
         item_id: items[i].item.item_id,
         in_sales_window: items[i].in_sales_window,
-        price: items[i].item.price_excluding_taxes.minor_units / Math.pow(10, items[i].item.price_excluding_taxes.decimals),
-      })
+        info: {
+          logoPicture: items[i].store.logo_picture.current_url,
+          address: items[i].store.store_location.address.address_line,
+        },
+        price:
+          items[i].item.price_excluding_taxes.minor_units /
+          Math.pow(10, items[i].item.price_excluding_taxes.decimals),
+      });
     }
     return re;
   }
@@ -36,16 +50,48 @@ class Main extends TGTG{
     return {
       orderId: orderContainer.order.id,
       quantity: orderContainer.order.order_line.quantity,
-      price: (orderContainer.order.order_line.item_price_including_taxes.minor_units / Math.pow(10, orderContainer.order.order_line.item_price_including_taxes.decimals)) * orderContainer.order.order_line.quantity,
+      price:
+        (orderContainer.order.order_line.item_price_including_taxes
+          .minor_units /
+          Math.pow(
+            10,
+            orderContainer.order.order_line.item_price_including_taxes.decimals
+          )) *
+        orderContainer.order.order_line.quantity,
       state: orderContainer.order.state,
-    }
+    };
   }
 
-  /*ENDPOINTS*/
+  /*
+    ENDPOINTS
+  */
 
-  public async GetFavoritesInfos() {
-    const items = await this.GetFavorites();
+  public async GetFavoritesInfos(size: number = 10) {
+    const items: Array<any> = [];
+    var loop: boolean = true;
+    var page: number = 0;
+
+    while (loop === true && page < 3) {
+      const itemsContainer = await this.GetFavorites(page);
+      if (itemsContainer) {
+        for (let x = 0; x < itemsContainer.lenght; x++) {
+          if (items.length <= size) items.push(itemsContainer[x]);
+          else {
+            loop = false;
+            x = itemsContainer.lenght;
+          }
+        }
+
+        if (itemsContainer.length !== 50) {
+          loop = false;
+        } else {
+          page += 1;
+        }
+      } else await this.UpdateUser();
+    }
+
     const itemsInfo = this.GetStoresInfo(items);
+    await this.UpdateUser();
     return itemsInfo;
   }
   public async GetFavoriteInfos(itemId: string) {
@@ -53,7 +99,10 @@ class Main extends TGTG{
     const itemInfo = this.GetStoresInfo([item]);
     return itemInfo;
   }
-  public async CreateNewOrder(itemId: string, itemCount: number): Promise<any | null> {
+  public async CreateNewOrder(
+    itemId: string,
+    itemCount: number
+  ): Promise<any | null> {
     const order = await this.CreateOrder(itemId, itemCount);
     if (order.state === "SUCCESS") {
       const ret = this.FormatOrder(order);
@@ -88,4 +137,4 @@ class Main extends TGTG{
   }
 }
 
-export {Main}
+export { Main };

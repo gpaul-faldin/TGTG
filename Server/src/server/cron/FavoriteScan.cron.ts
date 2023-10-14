@@ -1,19 +1,17 @@
 import User from '@schema/Users.schema';
 import { Main } from '@class/Main.class';
-import { BotCronJob} from '@utils/CronJobFavoritesBuilder';
+import { FavoritesCronJob } from '@utils/CronJobFavoritesBuilder';
 
-export const initializeBotCron = async () => {
+export const FavoriteScanCronInitializer = async () => {
+
   try {
     const userCursor = User.find({
       active: true,
-      isBot: true
     }).cursor();
-    const arrayOfInstances: Array<Main> = []
-
 
     for await (const user of userCursor) {
       if (user.login && user.initInfo) {
-        arrayOfInstances.push(new Main(
+        const mainInstance = new Main(
           user.email,
           user.initInfo.apkVersion,
           user.login.accessToken,
@@ -21,10 +19,11 @@ export const initializeBotCron = async () => {
           user.login.userId,
           user.login.tokenAge,
           user.login.cookie
-        ));
+        );
+
+        FavoritesCronJob(mainInstance);
       }
     }
-    BotCronJob(arrayOfInstances);
   } catch (error) {
     console.error('Error initializing user cron jobs:', error);
   }
