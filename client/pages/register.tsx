@@ -77,10 +77,8 @@ function Register() {
   };
 
   return (
-    <div className="flex row items-center justify-center min-h-screen bg-gray-100">
-      ok
-      <div className="bg-white p-8 rounded shadow-md w-full sm:w-96">
-        <h2 className="text-2xl font-bold mb-6">Inscription</h2>
+    <div>
+        <h2 className="text-2xl font-bold mb-6 rounded  sm:w-96 rounded">Inscription</h2>
         <form>
           <div className="mb-4">
             {isLoading ? (
@@ -173,7 +171,6 @@ function Register() {
             )}
           </div>
         </form>
-      </div>
     </div>
   );
 }

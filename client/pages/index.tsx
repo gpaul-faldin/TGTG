@@ -7,7 +7,7 @@ function index() {
   const [data, setData] = useState<string>("Loading...");
 
   useEffect(() => {
-    router.push("/login");
+    router.push("/homepage");
   }, []);
 
   return <div></div>;
