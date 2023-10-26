@@ -138,7 +138,7 @@ export class BuyOrderService {
       throw new Error('Run init first');
     }
     try {
-      if (this.user?.paymentMethod.cvc && this.user.isAdmin) {
+      if (this.user?.paymentMethod.cvc) {
         cvc = this.user.paymentMethod.cvc;
       }
       if (cvc === "") {
@@ -157,7 +157,7 @@ export class BuyOrderService {
 
       const PayInfo = await this.main.PayOrder(orderId, await this.paymentBuilder.buildCvCEncryptedObject());
       const PaymentId = PayInfo.payment_id;
-      await this.pullStatus(PaymentId);
+      //await this.pullStatus(PaymentId);
       await this.sleep(5000);
       return (await this.UpdateOrderStatus(orderId));
     } catch (error) {
