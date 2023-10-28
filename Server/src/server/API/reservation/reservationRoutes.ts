@@ -1,6 +1,7 @@
 import express from 'express';
 import BuyOrder from '@schema/buyOrder.schema';
 import User from '@schema/Users.schema';
+import { Main } from '@server/class/Main.class';
 import { startBuyOrderCron, removeBuyOrder } from '@server/cron/buyOrder.cron';
 
 const router = express.Router();
@@ -40,7 +41,16 @@ router.post('/create', async (req, res) => {
     await user.save();
 
     var scheduleString = schedule[user.subscription]
-    startBuyOrderCron(buyOrder._id.toString(), scheduleString);
+    var main = new Main(
+      buyOrder.user.email,
+      buyOrder.user.initInfo.apkVersion,
+      buyOrder.user.login.accessToken,
+      buyOrder.user.login.refreshToken,
+      buyOrder.user.login.userId,
+      buyOrder.user.login.tokenAge,
+      buyOrder.user.login.cookie
+    )
+    startBuyOrderCron(buyOrder._id.toString(), scheduleString, main);
 
     res.status(201).json({ message: 'BuyOrder created successfully.', buyOrder });
   } catch (err) {

@@ -38,14 +38,20 @@ if (!MongoUser || !MongoPass) {
       .connect(
         `mongodb+srv://${MongoUser}:${base64ToText(
           MongoPass
-        )}@cluster0.8tpzbzv.mongodb.net/`
+        )}@tgtg.g9qets2.mongodb.net/`
       )
-      .then(() => {
+      .then(async() => {
         console.log("Connected to MongoDB");
+        startCronJobs();
+        await sendSuccess("Server started");
       })
       .catch((err) => {
         throw new Error("Error connecting to MongoDB");
       });
+
+    app.listen(port, () => {
+      console.log(`Server up on port: ${port}`);
+    });
 
     app.use((req, res, next) => {
       if (req.originalUrl === "/api/stripe/webhook") {
@@ -64,11 +70,12 @@ if (!MongoUser || !MongoPass) {
       res.send({ message: "Hello World" });
     });
 
+    /* TEST ROUTES */
+
     app.use("/test/a", async (req, res) => {
       res.send("test");
       await sendEmailCVV("paul92g600@live.fr", "http://localhost:5000/");
     });
-
     app.use("/test/b", async (req, res) => {
       res.send("test");
       await sendEmailWelcome("paul92g600@live.fr");
@@ -80,13 +87,6 @@ if (!MongoUser || !MongoPass) {
       res.send("OK");
     });
 
-    app.listen(port, () => {
-      console.log(`Server up on port: ${port}`);
-    });
-
-    //CRON
-    startCronJobs();
-    await sendSuccess("Server started");
   } catch (error) {
     console.error("An error occurred during initialization:", error);
   }
