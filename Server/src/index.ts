@@ -62,8 +62,7 @@ if (!MongoUser || !MongoPass) {
     });
 
     app.use("/api/users", usersRoutes);
-    // app.use('/api/reservation', verifySubscription, reservationRoutes)
-    app.use("/api/reservation", reservationRoutes);
+    app.use('/api/reservation', verifySubscription, reservationRoutes)
     //app.use("/api/stripe", payment);
 
     app.get("/", (req, res) => {

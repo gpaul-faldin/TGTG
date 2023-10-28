@@ -73,7 +73,7 @@ class Main extends TGTG {
 
     while (loop === true && page < 3) {
       const itemsContainer = await this.GetFavorites(page);
-      if (itemsContainer.length !== 0) {
+      if (itemsContainer) {
         for (let x = 0; x < itemsContainer.length; x++) {
           if (items.length <= size){
             items.push(itemsContainer[x]);

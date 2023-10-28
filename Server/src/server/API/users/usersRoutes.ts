@@ -143,10 +143,12 @@ router.post("/login", async (req: Request, res: Response) => {
     { expiresIn: "365 days" }
   );
 
-  // Return JWT token
   res.setHeader("jwt", userToken);
   res.json({
     message: "Login successful",
+    data: {
+      jwt: userToken
+    }
   });
 });
 
