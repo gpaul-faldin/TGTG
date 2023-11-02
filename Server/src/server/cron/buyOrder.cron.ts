@@ -4,7 +4,7 @@ import { Main } from '@server/class/Main.class';
 import FavoriteStore from '@schema/favoriteStore.schema';
 import { BuyOrderService } from '../service/BuyOrder.service';
 import { sendSuccess } from '@notifications/discordWebhook';
-import { UserDocument } from '@server/schema/Users.schema';
+import User, { UserDocument } from '@server/schema/Users.schema';
 
 const buyOrderCronMap = new Map<string, cron.ScheduledTask>();
 
@@ -63,6 +63,11 @@ const removeBuyOrder = async (buyOrderId: string) => {
     buyOrderCronMap.delete(buyOrderId);
     console.log(`Cron job for Buy Order ${buyOrderId} removed.`);
   }
+
+  await User.updateOne(
+    { buyOrders: buyOrderId },
+    { $pull: { buyOrders: buyOrderId } }
+  );
 
   await BuyOrder.deleteOne({ _id: buyOrderId });
 };
