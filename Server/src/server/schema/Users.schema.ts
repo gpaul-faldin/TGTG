@@ -30,7 +30,7 @@ export interface UserDocument extends Document {
   };
   notif: {
     active: Boolean,
-    quantity: Number,
+    quantity: number,
     method: String,
     info: String,
   },
@@ -62,7 +62,7 @@ const UserSchema = new mongoose.Schema({
   },
   notif: {
     active: {type: Boolean, default: false},
-    quantity: Number,
+    quantity: number,
     method: String,
     info: String,
   },
