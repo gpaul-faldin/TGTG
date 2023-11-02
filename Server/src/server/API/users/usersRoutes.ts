@@ -39,6 +39,11 @@ router.post("/register", async (req: Request, res: Response) => {
         pollingId,
         apkVersion,
       },
+      notif: {
+        active: false,
+        method: "",
+        info: ""
+      }
     });
     await user.save();
 

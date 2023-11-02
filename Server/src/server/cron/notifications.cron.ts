@@ -10,9 +10,11 @@ const schedule = {
   'PRO': '*/5 * * * * *',
 }
 
+
+
 const NotificationsCronInitializer = async (notification: NotificationsDocument) => {
   const FREE = cron.schedule(schedule['FREE'], async () => {
-    const users = await User.find({ subscription: 'FREE', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'FREE', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL
@@ -27,7 +29,7 @@ const NotificationsCronInitializer = async (notification: NotificationsDocument)
     FREE.stop();
   })
   const STARTER = cron.schedule(schedule['STARTER'], async () => {
-    const users = await User.find({ subscription: 'STARTER', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'STARTER', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL
@@ -42,7 +44,7 @@ const NotificationsCronInitializer = async (notification: NotificationsDocument)
     STARTER.stop();
   })
   const PLUS = cron.schedule(schedule['PLUS'], async () => {
-    const users = await User.find({ subscription: 'PLUS', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'PLUS', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL
@@ -60,7 +62,7 @@ const NotificationsCronInitializer = async (notification: NotificationsDocument)
     if (notification.state === 'inactive') {
       await Notifications.findByIdAndUpdate(notification._id, { state: 'active' });
     }
-    const users = await User.find({ subscription: 'PRO', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'PRO', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL
