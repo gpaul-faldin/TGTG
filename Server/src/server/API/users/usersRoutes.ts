@@ -144,9 +144,9 @@ router.post("/login", async (req: Request, res: Response) => {
   );
 
   // Return JWT token
-  res.setHeader("jwt", userToken);
   res.json({
     message: "Login successful",
+    data: userToken,
   });
 });
 
