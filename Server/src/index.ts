@@ -6,7 +6,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { base64ToText } from "@utils/base64ToText";
 
-//import favoritesRoutes from './API/favorites/favoritesRoutes';
+import favoriteRoutes from "@server/API/favorites/favoriteRoutes";
 import usersRoutes from "@server/API/users/usersRoutes";
 import reservationRoutes from "@server/API/reservation/reservationRoutes";
 import verifySubscription from "@server/API/midleware/verifySubscription";
@@ -63,6 +63,7 @@ if (!MongoUser || !MongoPass) {
 
     app.use("/api/users", usersRoutes);
     app.use('/api/reservation', verifySubscription, reservationRoutes)
+    app.use("/api/favorites", favoriteRoutes);
     //app.use("/api/stripe", payment);
 
     app.get("/", (req, res) => {
