@@ -62,7 +62,7 @@ const UserSchema = new mongoose.Schema({
   },
   notif: {
     active: {type: Boolean, default: false},
-    quantity: number,
+    quantity: Number,
     method: String,
     info: String,
   },
