@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { CronBuilder } from '@server/class/CronBuilder.class';
-import User from '@schema/Users.schema';
+import User, { UserDocument } from '@schema/Users.schema';
 import Notifications, { NotificationsDocument } from "@server/schema/notifications.schema";
 
 const schedule = {
@@ -10,12 +10,18 @@ const schedule = {
   'PRO': '*/5 * * * * *',
 }
 
+
+
 const NotificationsCronInitializer = async (notification: NotificationsDocument) => {
   const FREE = cron.schedule(schedule['FREE'], async () => {
-    const users = await User.find({ subscription: 'FREE', active: true, favoriteStores: notification.favoriteStores });
+    const users: Array<UserDocument> = await User.find({ subscription: 'FREE', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
-      //SEND EMAIL
+      if (users[i].notif.quantity < 25) {
+        //SEND EMAIL
+        await User.findByIdAndUpdate(users[i]._id, { $inc: { 'notif.quantity': 1 } })
+      }
+      //Free tier can only receive 25 emails per month
     }
     console.log('FREE OK')
     notification.subscriptionStatus.FREE = true
@@ -27,7 +33,7 @@ const NotificationsCronInitializer = async (notification: NotificationsDocument)
     FREE.stop();
   })
   const STARTER = cron.schedule(schedule['STARTER'], async () => {
-    const users = await User.find({ subscription: 'STARTER', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'STARTER', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL
@@ -42,7 +48,7 @@ const NotificationsCronInitializer = async (notification: NotificationsDocument)
     STARTER.stop();
   })
   const PLUS = cron.schedule(schedule['PLUS'], async () => {
-    const users = await User.find({ subscription: 'PLUS', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'PLUS', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL
@@ -60,7 +66,7 @@ const NotificationsCronInitializer = async (notification: NotificationsDocument)
     if (notification.state === 'inactive') {
       await Notifications.findByIdAndUpdate(notification._id, { state: 'active' });
     }
-    const users = await User.find({ subscription: 'PRO', active: true, favoriteStores: notification.favoriteStores });
+    const users = await User.find({ subscription: 'PRO', active: true, favoriteStores: notification.favoriteStores, 'notif.active': true });
 
     for (let i = 0; i < users.length; i++) {
       //SEND EMAIL

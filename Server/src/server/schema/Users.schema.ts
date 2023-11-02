@@ -28,6 +28,12 @@ export interface UserDocument extends Document {
     userId: string;
     cookie: string;
   };
+  notif: {
+    active: Boolean,
+    quantity: number,
+    method: String,
+    info: String,
+  },
   favoriteStores: FavoriteStoreDocument[];
   orderHistory: OrderDocument[];
   buyOrders: BuyOrderDocument[];
@@ -53,6 +59,12 @@ const UserSchema = new mongoose.Schema({
     tokenAge: Number,
     userId: String,
     cookie: String,
+  },
+  notif: {
+    active: {type: Boolean, default: false},
+    quantity: Number,
+    method: String,
+    info: String,
   },
   favoriteStores: [
     {

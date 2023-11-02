@@ -12,7 +12,7 @@ class PaymentBuilder {
   private cvc: string;
   private storedPaymentMethodId: string;
 
-  constructor(cvc: string = '', storedPaymentMethodId: string = '') {
+  constructor(cvc: string, storedPaymentMethodId: string) {
     this.cvc = cvc;
     this.storedPaymentMethodId = storedPaymentMethodId;
 

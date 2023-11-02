@@ -6,7 +6,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { base64ToText } from "@utils/base64ToText";
 
-//import favoritesRoutes from './API/favorites/favoritesRoutes';
+import favoriteRoutes from "@server/API/favorites/favoriteRoutes";
 import usersRoutes from "@server/API/users/usersRoutes";
 import reservationRoutes from "@server/API/reservation/reservationRoutes";
 import verifySubscription from "@server/API/midleware/verifySubscription";
@@ -38,14 +38,20 @@ if (!MongoUser || !MongoPass) {
       .connect(
         `mongodb+srv://${MongoUser}:${base64ToText(
           MongoPass
-        )}@cluster0.8tpzbzv.mongodb.net/`
+        )}@tgtg.g9qets2.mongodb.net/`
       )
-      .then(() => {
+      .then(async() => {
         console.log("Connected to MongoDB");
+        startCronJobs();
+        await sendSuccess("Server started");
       })
       .catch((err) => {
         throw new Error("Error connecting to MongoDB");
       });
+
+    app.listen(port, () => {
+      console.log(`Server up on port: ${port}`);
+    });
 
     app.use((req, res, next) => {
       if (req.originalUrl === "/api/stripe/webhook") {
@@ -56,19 +62,20 @@ if (!MongoUser || !MongoPass) {
     });
 
     app.use("/api/users", usersRoutes);
-    // app.use('/api/reservation', verifySubscription, reservationRoutes)
-    app.use("/api/reservation", reservationRoutes);
+    app.use('/api/reservation', verifySubscription, reservationRoutes)
+    app.use("/api/favorites", favoriteRoutes);
     //app.use("/api/stripe", payment);
 
     app.get("/", (req, res) => {
       res.send({ message: "Hello World" });
     });
 
+    /* TEST ROUTES */
+
     app.use("/test/a", async (req, res) => {
       res.send("test");
       await sendEmailCVV("paul92g600@live.fr", "http://localhost:5000/");
     });
-
     app.use("/test/b", async (req, res) => {
       res.send("test");
       await sendEmailWelcome("paul92g600@live.fr");
@@ -80,13 +87,6 @@ if (!MongoUser || !MongoPass) {
       res.send("OK");
     });
 
-    app.listen(port, () => {
-      console.log(`Server up on port: ${port}`);
-    });
-
-    //CRON
-    startCronJobs();
-    await sendSuccess("Server started");
   } catch (error) {
     console.error("An error occurred during initialization:", error);
   }

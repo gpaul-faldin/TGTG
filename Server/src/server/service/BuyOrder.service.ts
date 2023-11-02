@@ -6,22 +6,24 @@ import Order, { OrderDocument } from '@schema/order.schema';
 
 export class BuyOrderService {
 
-  private main: Main | null;
+  private main: Main | undefined;
   private paymentBuilder: PaymentBuilder | null;
   private user: UserDocument | null;
-  private buyOrder: BuyOrderDocument | null;
+  private buyOrder: BuyOrderDocument | undefined;
   private BuyorderId: string;
   private quantity: number;
   private preferredPaymentMethodId: string;
+  private order: OrderDocument | undefined;
 
   constructor(orderId: string) {
     this.BuyorderId = orderId;
     this.quantity = 0;
     this.preferredPaymentMethodId = "";
-    this.main = null;
+    this.main = undefined;
     this.paymentBuilder = null;
     this.user = null;
-    this.buyOrder = null;
+    this.buyOrder = undefined;
+    this.order = undefined;
   }
 
   public async init() {
@@ -74,6 +76,7 @@ export class BuyOrderService {
         state: order.state,
       });
       await NewOrder.save();
+      this.order = NewOrder;
       return order.orderId;
 
     } catch (error) {
@@ -132,34 +135,41 @@ export class BuyOrderService {
     console.log(await this.main.GetPaymentBiometrics(PaymentId));
   }
 
-  async pay(cvc: string = "") {
+  private validatePayParameters(cvc: string, main: Main, order: OrderDocument) {
 
-    if (!this.main || !this.user || !this.buyOrder) {
-      throw new Error('Run init first');
+    if (!cvc && !this.user?.paymentMethod?.cvc) {
+      throw new Error('CVC is missing.');
     }
+
+    if (!order && !this.order) {
+      throw new Error('Order is missing.');
+    }
+
+    if (!main && !this.main) {
+      throw new Error('Main is missing.');
+    }
+  }
+
+  async pay(cvc?: string, main?: Main, order?: OrderDocument) {
+
     try {
-      if (this.user?.paymentMethod.cvc) {
-        cvc = this.user.paymentMethod.cvc;
-      }
-      if (cvc === "") {
-        throw new Error('CVC is missing.');
+
+      cvc = cvc ? cvc : this.user?.paymentMethod.cvc;
+      order = order ? order : this.order;
+      main = main ? main : this.main;
+
+      if (!cvc || !main || !order) {
+        throw new Error('Missing parameters.');
       }
 
-      const order = await Order.findOne({ buyOrder: this.buyOrder._id });
-      if (!order) {
-        throw new Error('Order is missing.');
-      }
-      const orderId = order.orderId;
-
-
-      this.preferredPaymentMethodId = await this.main.GetPaymentMethods();
+      this.preferredPaymentMethodId = await main.GetPaymentMethods();
       this.paymentBuilder = new PaymentBuilder(cvc, this.preferredPaymentMethodId);
 
-      const PayInfo = await this.main.PayOrder(orderId, await this.paymentBuilder.buildCvCEncryptedObject());
+      const PayInfo = await main.PayOrder(order.orderId, await this.paymentBuilder.buildCvCEncryptedObject());
       const PaymentId = PayInfo.payment_id;
       //await this.pullStatus(PaymentId);
       await this.sleep(5000);
-      return (await this.UpdateOrderStatus(orderId));
+      return (await this.UpdateOrderStatus(order.orderId));
     } catch (error) {
       console.error('Error in pay():', error);
       return null;
