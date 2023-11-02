@@ -15,55 +15,64 @@ const schedule = {
 }
 
 router.post('/create', async (req, res) => {
-  const { item_id, quantity, store_id } = req.body;
-
-  if (!item_id || !quantity || !store_id) {
+  if (!req.body) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
+  if (!Array.isArray(req.body)) {
+    return res.status(400).json({ message: 'Body must be an array.' });
+  }
+  for (let x = 0; x < req.body.length; x++) {
 
-  try {
+    const { item_id, quantity, store_id } = req.body[x];
 
-    const jwtInfo = jwt.verify(req.header('jwt') as string, process.env.JWT_SECRET as string) as {
-      id: string;
-      isAdmin: boolean;
-      Subscription: string;
+    if (!item_id || !quantity || !store_id) {
+      return res.status(400).json({ message: 'Missing required fields.' });
     }
 
-    const user = await User.findById(jwtInfo.id);
+    try {
 
-    if (!user || !user.active) {
-      return res.status(404).json({ message: 'User not found.' });
+      const jwtInfo = jwt.verify(req.header('jwt') as string, process.env.JWT_SECRET as string) as {
+        id: string;
+        isAdmin: boolean;
+        Subscription: string;
+      }
+
+      const user = await User.findById(jwtInfo.id);
+
+      if (!user || !user.active) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+
+      const buyOrder = new BuyOrder({
+        user: user._id,
+        item_id: item_id,
+        store_id: store_id,
+        quantity: quantity,
+        state: 'ONGOING',
+      });
+
+      await buyOrder.save();
+
+      user.buyOrders.push(buyOrder._id);
+      await user.save();
+
+      var scheduleString = schedule[user.subscription]
+      var main = new Main(
+        user.email,
+        user.initInfo.apkVersion,
+        user.login.accessToken,
+        user.login.refreshToken,
+        user.login.userId,
+        user.login.tokenAge,
+        user.login.cookie
+      )
+      startBuyOrderCron(buyOrder._id.toString(), scheduleString, main);
+
+      res.status(201).json({ message: 'BuyOrder created successfully.', buyOrder });
+    } catch (err) {
+      console.error('Error creating BuyOrder:', err);
+      res.status(500).json({ message: 'Internal Server Error.' });
     }
-
-    const buyOrder = new BuyOrder({
-      user: user._id,
-      item_id: item_id,
-      store_id: store_id,
-      quantity: quantity,
-      state: 'ONGOING',
-    });
-
-    await buyOrder.save();
-
-    user.buyOrders.push(buyOrder._id);
-    await user.save();
-
-    var scheduleString = schedule[user.subscription]
-    var main = new Main(
-      user.email,
-      user.initInfo.apkVersion,
-      user.login.accessToken,
-      user.login.refreshToken,
-      user.login.userId,
-      user.login.tokenAge,
-      user.login.cookie
-    )
-    startBuyOrderCron(buyOrder._id.toString(), scheduleString, main);
-
-    res.status(201).json({ message: 'BuyOrder created successfully.', buyOrder });
-  } catch (err) {
-    console.error('Error creating BuyOrder:', err);
-    res.status(500).json({ message: 'Internal Server Error.' });
   }
 });
 
