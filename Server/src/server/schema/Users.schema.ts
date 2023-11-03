@@ -1,10 +1,10 @@
-import mongoose, { Document } from 'mongoose';
-import { OrderDocument } from './order.schema';
-import { FavoriteStoreDocument } from './favoriteStore.schema';
-import { NotificationsDocument } from './notifications.schema';
-import { BuyOrderDocument } from './buyOrder.schema';
-import { Subscription } from '@server/Enum/subscription';
+import mongoose, { Document } from "mongoose";
+import { OrderDocument } from "./order.schema";
+import { FavoriteStoreDocument } from "./favoriteStore.schema";
+import { BuyOrderDocument } from "./buyOrder.schema";
+import { Subscription } from "@server/Enum/subscription";
 
+const validNotificationMethods = ["email"];
 
 // Interface for User document
 export interface UserDocument extends Document {
@@ -29,65 +29,74 @@ export interface UserDocument extends Document {
     cookie: string;
   };
   notif: {
-    active: Boolean,
-    quantity: number,
-    method: String,
-    info: String,
-  },
+    active: Boolean;
+    quantity: number;
+    method: String;
+    info: String;
+  };
   favoriteStores: FavoriteStoreDocument[];
   orderHistory: OrderDocument[];
   buyOrders: BuyOrderDocument[];
 }
 
-const UserSchema = new mongoose.Schema({
-  isAdmin: { type: Boolean, default: false },
-  active: Boolean,
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: false},
-  subscription: { type: String, enum: Object.values(Subscription), default: Subscription.FREE },
-  subscriptionExpiry: { type: Date, default: Date.now },
-  paymentMethod: {
-    cvc: String
-  },
-  initInfo: {
-    pollingId: { type: String, required: true },
-    apkVersion: { type: String, required: true },
-  },
-  login: {
-    accessToken: String,
-    refreshToken: String,
-    tokenAge: Number,
-    userId: String,
-    cookie: String,
-  },
-  notif: {
-    active: {type: Boolean, default: false},
-    quantity: Number,
-    method: String,
-    info: String,
-  },
-  favoriteStores: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'FavoriteStore',
+const UserSchema = new mongoose.Schema(
+  {
+    isAdmin: { type: Boolean, default: false },
+    active: Boolean,
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: false },
+    subscription: {
+      type: String,
+      enum: Object.values(Subscription),
+      default: Subscription.FREE,
     },
-  ],
-  orderHistory: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Order',
+    subscriptionExpiry: { type: Date, default: Date.now },
+    paymentMethod: {
+      cvc: String,
     },
-  ],
-  buyOrders: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'BuyOrder',
+    initInfo: {
+      pollingId: { type: String, required: true },
+      apkVersion: { type: String, required: true },
     },
-  ]
-}, { timestamps: true });
+    login: {
+      accessToken: String,
+      refreshToken: String,
+      tokenAge: Number,
+      userId: String,
+      cookie: String,
+    },
+    notif: {
+      active: { type: Boolean, default: false },
+      quantity: Number,
+      method: {
+        type: String,
+        enum: validNotificationMethods,
+        default: "email",
+      },
+      info: String,
+    },
+    favoriteStores: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FavoriteStore",
+      },
+    ],
+    orderHistory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
+    buyOrders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BuyOrder",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-
-
-const User = mongoose.model<UserDocument>('User', UserSchema);
+const User = mongoose.model<UserDocument>("User", UserSchema);
 
 export default User;
