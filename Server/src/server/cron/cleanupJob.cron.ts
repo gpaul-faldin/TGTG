@@ -16,9 +16,11 @@ const cleanupOldStores = async () => {
     // Remove references from User documents
     if (deletedStoreIds.length > 0) {
       await User.updateMany(
+        { favoriteStores: { $in: deletedStoreIds.map(store => store._id) } },
         { $pull: { favoriteStores: { $in: deletedStoreIds.map(store => store._id) } } },
         { multi: true }
       );
+
 
       console.log(`Removed outdated favorite stores from users successfully.`);
     } else {

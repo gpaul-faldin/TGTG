@@ -31,8 +31,8 @@ export interface UserDocument extends Document {
   notif: {
     active: Boolean,
     quantity: number,
-    method: String,
-    info: String,
+    method: string,
+    info: string,
   },
   autoBuy: {
     active: Boolean,

@@ -36,7 +36,8 @@
 //         if (checkoutSessionCompleted.customer_details?.email) {
 //         //const userService = new UserService(checkoutSessionCompleted.customer_details?.email);
 //           const userService = new UserService("paul92g60@live.fr");
-//           await userService.updateUserSubscription(Subscription.PRO);
+//           console.log(checkoutSessionCompleted)
+//           //await userService.updateUserSubscription(Subscription.PRO);
 //           console.log("COMPLETED")
 //         }
 //       }

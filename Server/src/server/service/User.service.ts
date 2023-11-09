@@ -35,8 +35,15 @@ export class UserService {
     UTILS
   */
 
-  private extendSubscriptionExpiry(daysToAdd: number): Date {
-    const currentExpiry = new Date();
+  private async extendSubscriptionExpiry (daysToAdd: number): Promise<Date> {
+
+    const user = await User.findOne({ _id: this.userId });
+
+    if (user?.subscriptionExpiry)
+      var currentExpiry = new Date(user?.subscriptionExpiry);
+    else
+      var currentExpiry = new Date();
+
     currentExpiry.setDate(currentExpiry.getDate() + daysToAdd);
     return currentExpiry;
   }
