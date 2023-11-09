@@ -237,4 +237,38 @@ router.post("/set-notif", async (req: Request, res: Response) => {
   }
 });
 
+router.get("/refresh-jwt", async (req: Request, res: Response) => {
+  const jwtInfo = jwt.verify(
+    req.header("jwt") as string,
+    process.env.JWT_SECRET as string
+  ) as {
+    id: string;
+    isAdmin: boolean;
+    Subscription: string;
+  };
+
+  if (!jwtInfo) {
+    return res.status(400).json({ status: "KO", message: "Missing JWT" });
+  }
+
+  const user = await User.findById(jwtInfo.id);
+  if (!user) {
+    return res.status(400).json({ status: "KO", message: "User not found" });
+  }
+
+  if (jwtInfo.Subscription !== user.subscription) {
+    let userToken = jwt.sign(
+      {
+        id: user._id,
+        isAdmin: user.isAdmin,
+        Subscription: user.subscription,
+      },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "365 days" }
+    );
+    return res.status(400).json({ status: "OK", message: "Subscription changed", data: userToken });
+  }
+  return res.status(400).json({ status: "KO", message: "Subscription not changed" });
+});
+
 export default router;
