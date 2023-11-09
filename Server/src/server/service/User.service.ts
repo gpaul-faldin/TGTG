@@ -44,6 +44,7 @@ export class UserService {
     else
       var currentExpiry = new Date();
 
+
     currentExpiry.setDate(currentExpiry.getDate() + daysToAdd);
     return currentExpiry;
   }
@@ -60,7 +61,7 @@ export class UserService {
     await this.waitForUserId();
     try {
       console.log("Updating subscription to:", subscription);
-      const newExpiryDate = this.extendSubscriptionExpiry(32);
+      const newExpiryDate = await this.extendSubscriptionExpiry(32);
 
       await User.updateOne({ _id: this.userId }, {
         $set: {

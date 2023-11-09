@@ -11,7 +11,7 @@ import usersRoutes from "@server/API/users/usersRoutes";
 import reservationRoutes from "@server/API/reservation/reservationRoutes";
 import verifySubscription from "@server/API/midleware/verifySubscription";
 import { sendSuccess } from "@notifications/discordWebhook";
-//import payment from "@server/stripe/payment";
+import payment from "@server/stripe/payment";
 import {
   sendEmailCVV,
   sendEmailNotification,
@@ -64,7 +64,7 @@ if (!MongoUser || !MongoPass) {
     app.use("/api/users", usersRoutes);
     app.use('/api/reservation', verifySubscription, reservationRoutes)
     app.use("/api/favorites", favoriteRoutes);
-    //app.use("/api/stripe", payment);
+    app.use("/api/stripe", payment);
 
     app.get("/", (req, res) => {
       res.send({ message: "Hello World" });
