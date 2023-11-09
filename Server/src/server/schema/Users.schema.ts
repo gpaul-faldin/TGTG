@@ -1,10 +1,10 @@
-import mongoose, { Document } from 'mongoose';
-import { OrderDocument } from './order.schema';
-import { FavoriteStoreDocument } from './favoriteStore.schema';
-import { NotificationsDocument } from './notifications.schema';
-import { BuyOrderDocument } from './buyOrder.schema';
-import { Subscription } from '@server/Enum/subscription';
+import mongoose, { Document } from "mongoose";
+import { OrderDocument } from "./order.schema";
+import { FavoriteStoreDocument } from "./favoriteStore.schema";
+import { BuyOrderDocument } from "./buyOrder.schema";
+import { Subscription } from "@server/Enum/subscription";
 
+const validNotificationMethods = ["email"];
 
 // Interface for User document
 export interface UserDocument extends Document {
@@ -75,28 +75,28 @@ const UserSchema = new mongoose.Schema({
     active: {type: Boolean, default: true},
     quantity: Number
   },
-  favoriteStores: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'FavoriteStore',
-    },
-  ],
-  orderHistory: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Order',
-    },
-  ],
-  buyOrders: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'BuyOrder',
-    },
-  ]
-}, { timestamps: true });
+    favoriteStores: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FavoriteStore",
+      },
+    ],
+    orderHistory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    ],
+    buyOrders: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BuyOrder",
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
-
-
-const User = mongoose.model<UserDocument>('User', UserSchema);
+const User = mongoose.model<UserDocument>("User", UserSchema);
 
 export default User;

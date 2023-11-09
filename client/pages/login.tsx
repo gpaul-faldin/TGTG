@@ -1,5 +1,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import axios from "axios";
+import Router from "next/router";
+import { setCookie } from 'nookies';
+import { storeJwt } from "@/components/utils/token";
+import jwt from 'jsonwebtoken';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -22,6 +27,7 @@ function Login() {
     if (!formData.email || !formData.password) {
       setError("Tous les champs sont obligatoires");
     } else {
+      handleLogin();
       setError("");
       setFormData({
         email: "",
@@ -29,6 +35,30 @@ function Login() {
       });
     }
   };
+
+  const handleLogin = async () => {
+     const loginFetch = await axios.post(
+       "http://localhost:6001/api/users/login",
+       {
+         email: formData.email,
+         password: formData.password,
+       }
+     );
+     console.log(loginFetch.data);
+   
+     if (loginFetch.status === 200 && loginFetch.data.data) {  
+      storeJwt(loginFetch.data.data);
+    
+       Router.push("/dashboard");
+     } else {
+       setError("Email ou mot de passe incorrect");
+       setFormData({
+         email: "",
+         password: "",
+       });
+     }
+  }
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

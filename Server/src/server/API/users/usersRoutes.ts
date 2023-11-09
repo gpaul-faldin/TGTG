@@ -7,12 +7,13 @@ import { Main } from "@class/Main.class";
 import User, { UserDocument } from "@schema/Users.schema";
 import Notifications from "@server/schema/notifications.schema";
 import { FavoritesCronJob } from "@utils/CronJobFavoritesBuilder";
+import { MongooseError } from "mongoose";
 
 const router = Router();
 
 router.post("/register", async (req: Request, res: Response) => {
   if (!req.body.email) {
-    return res.status(400).json({ message: "Missing email" });
+    return res.status(400).json({ status: "KO", message: "Missing email" });
   }
 
   try {
@@ -20,12 +21,14 @@ router.post("/register", async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!password) {
-      return res.status(400).json({ message: "password" });
+      return res.status(400).json({ status: "KO", message: "password" });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: "Email already registered" });
+      return res
+        .status(400)
+        .json({ status: "KO", message: "Email already registered" });
     }
 
     const TooGood = new TGTG(email, apkVersion);
@@ -42,15 +45,17 @@ router.post("/register", async (req: Request, res: Response) => {
       notif: {
         active: false,
         method: "",
-        info: ""
-      }
+        info: "",
+      },
     });
     await user.save();
 
-    res.status(201).json({ message: "Email registered successfully" });
+    res
+      .status(201)
+      .json({ status: "OK", message: "Email registered successfully" });
   } catch (err) {
     console.error("Failed to register:", err);
-    res.status(500).json({ message: "Failed to register" });
+    res.status(500).json({ status: "KO", message: "Failed to register" });
   }
 });
 
@@ -58,7 +63,9 @@ router.post("/validateRegister", async (req: Request, res: Response) => {
   const { email, code } = req.body;
 
   if (!email || !code) {
-    return res.status(400).json({ message: "Missing email or code" });
+    return res
+      .status(400)
+      .json({ status: "KO", message: "Missing email or code" });
   }
 
   try {
@@ -66,14 +73,20 @@ router.post("/validateRegister", async (req: Request, res: Response) => {
 
     // Validate the user's state
     if (!user) {
-      return res.status(404).json({ message: "Email not registered" });
+      return res
+        .status(404)
+        .json({ status: "KO", message: "Email not registered" });
     }
     if (user.active) {
-      return res.status(400).json({ message: "Email already validated" });
+      return res
+        .status(400)
+        .json({ status: "KO", message: "Email already validated" });
     }
     if (!user.initInfo) {
       console.error("User data is incomplete:", user);
-      return res.status(500).json({ message: "User data is incomplete." });
+      return res
+        .status(500)
+        .json({ status: "KO", message: "User data is incomplete." });
     }
 
     const TooGood = new TGTG(email, user.initInfo.apkVersion);
@@ -112,13 +125,15 @@ router.post("/validateRegister", async (req: Request, res: Response) => {
         );
       }
     } catch (err: any) {
-      return res.status(400).json({ message: err.message });
+      return res.status(400).json({ status: "KO", message: err.message });
     }
 
-    res.status(200).json({ message: "Account is registered", user });
+    res
+      .status(200)
+      .json({ status: "OK", message: "Account is registered", data: user });
   } catch (err) {
     console.error("Failed to validate:", err);
-    res.status(500).json({ message: "Failed to validate" });
+    res.status(500).json({ status: "KO", message: "Failed to validate" });
   }
 });
 
@@ -150,27 +165,75 @@ router.post("/login", async (req: Request, res: Response) => {
 
   res.setHeader("jwt", userToken);
   res.json({
+    status: "OK",
     message: "Login successful",
     data: {
-      jwt: userToken
-    }
+      jwt: userToken,
+    },
   });
 });
 
-router.put("/setpassword/:id", async (req: Request, res: Response) => {
+router.put("/setpassword", async (req: Request, res: Response) => {
   if (!req.body || req.body.password)
     return res.status(400).send("Body is invalid or does not exist");
 
+  if (!req.header("jwt")) return res.status(400).send("Missing JWT in header");
+
+  const jwtInfo = jwt.verify(
+    req.header("jwt") as string,
+    process.env.JWT_SECRET as string
+  ) as {
+    id: string;
+    isAdmin: boolean;
+    Subscription: string;
+  };
+
   try {
     await User.findByIdAndUpdate(
-      { _id: req.params.id },
+      { _id: jwtInfo.id },
       { $set: { password: req.body.password } }
     );
-    return res.send(`Password updated correctly for ${req.params.id}`);
-  } catch (e) {
+    return res.send({
+      status: "OK",
+      message: `Password updated correctly for ${jwtInfo.id}`,
+    });
+  } catch (e: MongooseError | any) {
+    return res.status(400).send({ status: "KO", message: e.message });
+  }
+});
+
+router.post("/set-notif", async (req: Request, res: Response) => {
+  const { method, info } = req.body;
+  if (!method || !info) {
     return res
       .status(400)
-      .send("The user is unknown or the update could not be applied");
+      .json({ status: "KO", message: "Missing method or info" });
+  }
+  if (!req.header("jwt"))
+    return res
+      .status(400)
+      .send({ status: "KO", message: "Missing JWT in header" });
+
+  const jwtInfo = jwt.verify(
+    req.header("jwt") as string,
+    process.env.JWT_SECRET as string
+  ) as {
+    id: string;
+    isAdmin: boolean;
+    Subscription: string;
+  };
+
+  try {
+    await User.findByIdAndUpdate(
+      { _id: jwtInfo.id },
+      { $set: { notif: { active: true, method, info, quantity: 0 } } }
+    );
+    return res.send({
+      status: "OK",
+      message: `Notification method updated correctly for ${jwtInfo.id}`,
+    });
+  } catch (e: MongooseError | any) {
+    return res.status(400).send({ status: "KO", message: e.message });
   }
 });
 
