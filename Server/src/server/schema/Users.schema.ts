@@ -34,6 +34,11 @@ export interface UserDocument extends Document {
     method: String,
     info: String,
   },
+  autoBuy: {
+    active: Boolean,
+    quantity: number,
+    concurent: number,
+  }
   favoriteStores: FavoriteStoreDocument[];
   orderHistory: OrderDocument[];
   buyOrders: BuyOrderDocument[];
@@ -65,6 +70,10 @@ const UserSchema = new mongoose.Schema({
     quantity: Number,
     method: String,
     info: String,
+  },
+  autobuy: {
+    active: {type: Boolean, default: true},
+    quantity: Number
   },
   favoriteStores: [
     {

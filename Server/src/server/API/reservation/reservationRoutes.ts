@@ -1,7 +1,7 @@
 import express from 'express';
 import  jwt  from 'jsonwebtoken';
 import BuyOrder from '@schema/buyOrder.schema';
-import User from '@schema/Users.schema';
+import User, { UserDocument } from '@schema/Users.schema';
 import { Main } from '@server/class/Main.class';
 import { startBuyOrderCron, removeBuyOrder } from '@server/cron/buyOrder.cron';
 
@@ -14,7 +14,61 @@ const schedule = {
   "PRO": "*/5 * * * * *",
 }
 
+interface Limit {
+  FREE: {
+    quantity: number;
+    concurent: number;
+  };
+  STARTER: {
+    quantity: number;
+    concurent: number;
+  };
+  PLUS: {
+    quantity: number;
+    concurent: number;
+  };
+  PRO: {
+    quantity: number;
+    concurent: number;
+  };
+}
+
+const limit: Limit = {
+  FREE: {
+    quantity: 0,
+    concurent: 0,
+  },
+  STARTER: {
+    quantity: 4,
+    concurent: 2,
+  },
+  PLUS: {
+    quantity: 10000,
+    concurent: 4,
+  },
+  PRO: {
+    quantity: 10000,
+    concurent: 10,
+  },
+};
+
 router.post('/create', async (req, res) => {
+
+  const checkLimit = (user: UserDocument) => {
+    if (user.subscription === 'FREE') {
+        return false;
+    } else {
+      if (user.buyOrders.length >= limit[user.subscription].concurent) {
+        return false;
+      }
+      if (user.autoBuy.quantity >= limit[user.subscription].quantity) {
+        return false;
+      }
+
+    }
+    return true;
+  };
+
   if (!req.body) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
@@ -26,7 +80,7 @@ router.post('/create', async (req, res) => {
     const { item_id, quantity, store_id } = req.body[x];
 
     if (!item_id || !quantity || !store_id) {
-      return res.status(400).json({ message: 'Missing required fields.' });
+      return res.status(400).json({ status: "KO", message: 'Missing required fields.' });
     }
 
     try {
@@ -40,7 +94,11 @@ router.post('/create', async (req, res) => {
       const user = await User.findById(jwtInfo.id);
 
       if (!user || !user.active) {
-        return res.status(404).json({ message: 'User not found.' });
+        return res.status(404).json({ status: "KO", message: 'User not found.' });
+      }
+
+      if (checkLimit(user) === false) {
+        return res.status(400).json({ status: "KO", message: 'BuyOrder limit reached.' });
       }
 
       const buyOrder = new BuyOrder({
@@ -68,10 +126,10 @@ router.post('/create', async (req, res) => {
       )
       startBuyOrderCron(buyOrder._id.toString(), scheduleString, main);
 
-      res.status(201).json({ message: 'BuyOrder created successfully.', buyOrder });
+      res.status(201).json({ status: "OK", message: 'BuyOrder created successfully.', buyOrder });
     } catch (err) {
       console.error('Error creating BuyOrder:', err);
-      res.status(500).json({ message: 'Internal Server Error.' });
+      res.status(500).json({status: "KO", message: 'Internal Server Error.' });
     }
   }
 });
@@ -80,7 +138,7 @@ router.delete('/remove/:id', async (req, res) => {
   const buyOrderId = req.params.id;
 
   if (!buyOrderId) {
-    return res.status(400).json({ message: 'Missing buyOrderId or userId.' });
+    return res.status(400).json({ status: "KO", message: 'Missing buyOrderId or userId.' });
   }
 
   try {
@@ -93,12 +151,12 @@ router.delete('/remove/:id', async (req, res) => {
 
     const buyOrder = await BuyOrder.findById(buyOrderId);
     if (!buyOrder) {
-      return res.status(404).json({ message: 'Buy Order not found.' });
+      return res.status(404).json({ status: "KO", message: 'Buy Order not found.' });
     }
 
     const user = await User.findById(jwtInfo.id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+      return res.status(404).json({ status: "KO", message: 'User not found.' });
     }
 
     if (user.buyOrders.includes(buyOrder._id)) {
@@ -110,13 +168,13 @@ router.delete('/remove/:id', async (req, res) => {
 
       removeBuyOrder(buyOrderId);
 
-      res.status(200).json({ message: 'BuyOrder removed successfully.' });
+      res.status(200).json({ status: "OK", message: 'BuyOrder removed successfully.' });
     } else {
-      return res.status(403).json({ message: 'Unauthorized: Buy Order is not owned by this user.' });
+      return res.status(403).json({ status: "KO", message: 'Unauthorized: Buy Order is not owned by this user.' });
     }
   } catch (err) {
     console.error('Error removing BuyOrder:', err);
-    res.status(500).json({ message: 'Internal Server Error.' });
+    res.status(500).json({ status: "KO", message: 'Internal Server Error.' });
   }
 });
 
@@ -128,7 +186,7 @@ router.get('/', async (req, res) => {
   }
 
   const buyOrders = await BuyOrder.find({ user: jwtInfo.id });
-  return res.status(200).json({ buyOrders });
+  return res.status(200).json({ status: "OK", message: "Succefull", data: buyOrders });
 });
 
 export default router;
