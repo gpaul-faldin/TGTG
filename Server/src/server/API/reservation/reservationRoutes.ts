@@ -69,6 +69,8 @@ router.post('/create', async (req, res) => {
     return true;
   };
 
+
+
   if (!req.body) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
@@ -101,6 +103,21 @@ router.post('/create', async (req, res) => {
         return res.status(400).json({ status: "KO", message: 'BuyOrder limit reached.' });
       }
 
+      var main = new Main(
+        user.email,
+        user.initInfo.apkVersion,
+        user.login.accessToken,
+        user.login.refreshToken,
+        user.login.userId,
+        user.login.tokenAge,
+        user.login.cookie
+      )
+
+      var PaymentMethod = await main.GetPaymentMethods()
+      if (PaymentMethod === null) {
+        return res.status(400).json({ status: "KO", message: 'No payment method found.' });
+      }
+
       const buyOrder = new BuyOrder({
         user: user._id,
         item_id: item_id,
@@ -115,15 +132,7 @@ router.post('/create', async (req, res) => {
       await user.save();
 
       var scheduleString = schedule[user.subscription]
-      var main = new Main(
-        user.email,
-        user.initInfo.apkVersion,
-        user.login.accessToken,
-        user.login.refreshToken,
-        user.login.userId,
-        user.login.tokenAge,
-        user.login.cookie
-      )
+
       startBuyOrderCron(buyOrder._id.toString(), scheduleString, main);
 
       res.status(201).json({ status: "OK", message: 'BuyOrder created successfully.', buyOrder });
