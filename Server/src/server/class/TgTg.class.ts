@@ -128,15 +128,13 @@ class TGTG {
       dddomain: "https://apptoogoodtogo.com",
       Referer: "",
       jsData: JSON.stringify({
-        ttst: `${Math.floor(Math.random() * 90 + 10)}.${
-          Math.floor(Math.random() * (9999999999999 - 1000000000000 + 1)) +
+        ttst: `${Math.floor(Math.random() * 90 + 10)}.${Math.floor(Math.random() * (9999999999999 - 1000000000000 + 1)) +
           1000000000000
-        }`,
+          }`,
         ifov: false,
-        tagpu: `${Math.floor(Math.random() * 90 + 10)}.${
-          Math.floor(Math.random() * (9999999999999 - 1000000000000 + 1)) +
+        tagpu: `${Math.floor(Math.random() * 90 + 10)}.${Math.floor(Math.random() * (9999999999999 - 1000000000000 + 1)) +
           1000000000000
-        }`,
+          }`,
         glvd: "Google Inc. (NVIDIA)",
         glrd: "ANGLE (NVIDIA, NVIDIA GeForce GTX 1660 SUPER Direct3D11 vs_5_0 ps_5_0, D3D11)",
         hc: 16,
@@ -499,12 +497,16 @@ class TGTG {
       return resp.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(
-          JSON.stringify({
-            message: err.response?.data.message || err.message,
-            code: err.response?.status || 500,
-          })
-        );
+        if (err.response?.status === 403) {
+          this.headers["Cookie"] = await this.DatadomeRefresh();
+        } else {
+          console.log(
+            JSON.stringify({
+              message: err.response?.data.message || err.message,
+              code: err.response?.status || 500,
+            })
+          );
+        }
       } else {
         throw err;
       }
@@ -553,12 +555,16 @@ class TGTG {
       return resp.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(
-          JSON.stringify({
-            message: err.response?.data.message || err.message,
-            code: err.response?.status || 500,
-          })
-        );
+        if (err.response?.status === 403) {
+          this.headers["Cookie"] = await this.DatadomeRefresh();
+        } else {
+          console.log(
+            JSON.stringify({
+              message: err.response?.data.message || err.message,
+              code: err.response?.status || 500,
+            })
+          );
+        }
       } else {
         throw err;
       }
@@ -637,12 +643,16 @@ class TGTG {
       return preferredIdentifier;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(
-          JSON.stringify({
-            message: err.response?.data.message || err.message,
-            code: err.response?.status || 500,
-          })
-        );
+        if (err.response?.status === 403) {
+          this.headers["Cookie"] = await this.DatadomeRefresh();
+        } else {
+          console.log(
+            JSON.stringify({
+              message: err.response?.data.message || err.message,
+              code: err.response?.status || 500,
+            })
+          );
+        }
       } else {
         throw err;
       }
@@ -685,12 +695,16 @@ class TGTG {
       return resp.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(
-          JSON.stringify({
-            message: err.response?.data.message || err.message,
-            code: err.response?.status || 500,
-          })
-        );
+        if (err.response?.status === 403) {
+          this.headers["Cookie"] = await this.DatadomeRefresh();
+        } else {
+          console.log(
+            JSON.stringify({
+              message: err.response?.data.message || err.message,
+              code: err.response?.status || 500,
+            })
+          );
+        }
       } else {
         throw err;
       }
@@ -708,12 +722,18 @@ class TGTG {
       return resp.data.state;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(
-          JSON.stringify({
-            message: err.response?.data.message || err.message,
-            code: err.response?.status || 500,
-          })
-        );
+        if (err.response?.status === 403) {
+          this.headers["Cookie"] = await this.DatadomeRefresh();
+          return "";
+        } else {
+          console.log(
+            JSON.stringify({
+              message: err.response?.data.message || err.message,
+              code: err.response?.status || 500,
+            })
+          );
+          return "";
+        }
       } else {
         throw err;
       }
@@ -731,12 +751,16 @@ class TGTG {
       return resp.data;
     } catch (err: any | AxiosError) {
       if (axios.isAxiosError(err)) {
-        throw new Error(
-          JSON.stringify({
-            message: err.response?.data.message || err.message,
-            code: err.response?.status || 500,
-          })
-        );
+        if (err.response?.status === 403) {
+          this.headers["Cookie"] = await this.DatadomeRefresh();
+        } else {
+          console.log(
+            JSON.stringify({
+              message: err.response?.data.message || err.message,
+              code: err.response?.status || 500,
+            })
+          );
+        }
       } else {
         throw err;
       }
