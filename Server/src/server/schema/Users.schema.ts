@@ -34,7 +34,7 @@ export interface UserDocument extends Document {
     method: string,
     info: string,
   },
-  autoBuy: {
+  autobuy: {
     active: Boolean,
     quantity: number,
     concurent: number,
@@ -73,7 +73,7 @@ const UserSchema = new mongoose.Schema({
   },
   autobuy: {
     active: {type: Boolean, default: true},
-    quantity: Number
+    quantity: { type: Number, default: 0 }
   },
     favoriteStores: [
       {

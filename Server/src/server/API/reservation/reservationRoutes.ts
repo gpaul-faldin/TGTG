@@ -61,7 +61,7 @@ router.post('/create', async (req, res) => {
       if (user.buyOrders.length >= limit[user.subscription].concurent) {
         return false;
       }
-      if (user.autoBuy.quantity >= limit[user.subscription].quantity) {
+      if (user.autobuy.quantity >= limit[user.subscription].quantity) {
         return false;
       }
 
