@@ -2,6 +2,10 @@
 
 Too Good To Bot is a service that aim at automating Too Good To Go. With the possibility to have notification on availability and auto buy of mistery bags
 
+# No longer working
+
+In it's current state the projet no longer works, an update from datadome made request with axios non working. Could probably be fixed tho.
+
 ## Project Overview
 
 This repository contains two main folders: `server` and `client`. The `server` folder houses the backend server responsible for processing data and performing heavy computational tasks using Express.js. On the other hand, the `client` folder contains the frontend of the application built with Next.js.
