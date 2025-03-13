@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+test.js
+items.json
+full.json
+test.*
+TEST
+stripe*
