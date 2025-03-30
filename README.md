@@ -156,7 +156,6 @@ The system uses several CRON jobs to keep everything running smoothly:
 
 - User payment information is never stored on our servers
 - We only store the minimum required tokens to interact with TGTG
-- All sensitive data is stored in base64 encoded format
 - JWT tokens are used for secure API authentication
 
 ## 📝 License
