@@ -185,8 +185,10 @@ This project was only possible due to extensive reverse engineering. Remember to
 - **User Management**: Complete user authentication and account management
 
 ### 🛠️ Technology Stack
-- **Backend**: Node.js, Express.js, TypeScript
-- **Database**: MongoDB
-- **Services**: Nodemailer, Stripe, JWT
-- **Infrastructure**: CRON jobs for automation
+- TypeScript
+- Express.js
+- MongoDB
+- Nodemailer
+- Stripe
+- CRON jobs
 <!-- PORTFOLIO_METADATA_END -->
