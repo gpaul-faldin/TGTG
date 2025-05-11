@@ -182,11 +182,11 @@ This project was only possible due to extensive reverse engineering. Remember to
 Too Good To Bot is an innovative service that automates interactions with Too Good To Go, the popular surplus food marketplace app. This project offers users real-time notifications for their favorite stores and can even automatically purchase magic bags when they become available!
 
 ### 🎯 Key Features
-- **Store Monitoring**: Continuously checks your favorite stores for availability
-- **Notifications**: Receive alerts via email when items become available
-- **Auto-Buy**: Automatically purchase magic bags when they match your criteria
-- **Subscription Tiers**: Different pricing tiers with varying features and limits
-- **User Management**: Complete user authentication and account management
+-Continuously checks your favorite stores for availability
+-Receive alerts via email when items become available
+-Automatically purchase magic bags when they match your criteria
+-Different pricing tiers with varying features and limits
+-Complete user authentication and account management
 
 ### 🛠️ Technology Stack
 - TypeScript
