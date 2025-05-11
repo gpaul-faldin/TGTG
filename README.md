@@ -170,3 +170,23 @@ This project was only possible due to extensive reverse engineering. Remember to
 ---
 
 **Disclaimer**: This project is not affiliated with Too Good To Go. Use at your own discretion and in accordance with Too Good To Go's terms of service.
+
+<!-- PORTFOLIO_METADATA_START -->
+<div align="center">
+  <h3>📊 Portfolio Metadata</h3>
+  <p><em>This section is used for automatic project information extraction</em></p>
+</div>
+
+### 🎯 Key Features
+- **Store Monitoring**: Continuously checks your favorite stores for availability
+- **Notifications**: Receive alerts via email when items become available
+- **Auto-Buy**: Automatically purchase magic bags when they match your criteria
+- **Subscription Tiers**: Different pricing tiers with varying features and limits
+- **User Management**: Complete user authentication and account management
+
+### 🛠️ Technology Stack
+- **Backend**: Node.js, Express.js, TypeScript
+- **Database**: MongoDB
+- **Services**: Nodemailer, Stripe, JWT
+- **Infrastructure**: CRON jobs for automation
+<!-- PORTFOLIO_METADATA_END -->
